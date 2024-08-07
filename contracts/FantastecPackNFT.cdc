@@ -3,6 +3,7 @@ import "NonFungibleToken"
 import "FantastecNFT"
 import "IFantastecPackNFT"
 import "MetadataViews"
+import "ViewResolver"
 import "Burner"
 
 access(all) contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
@@ -73,7 +74,7 @@ access(all) contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
         }
     }
 
-    access(all) resource NFT: IFantastecPackNFT.NFT, Burner.Burnable {
+    access(all) resource NFT: IFantastecPackNFT.NFT, Burner.Burnable, ViewResolver.Resolver {
         access(all) let id: UInt64
         access(all) let productId: UInt64
 
