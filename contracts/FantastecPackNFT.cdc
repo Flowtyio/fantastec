@@ -3,29 +3,30 @@ import "NonFungibleToken"
 import "FantastecNFT"
 import "IFantastecPackNFT"
 import "MetadataViews"
+import "ViewResolver"
+import "Burner"
 
-pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
+access(all) contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
 
-    pub var totalSupply: UInt64
-    pub let CollectionStoragePath: StoragePath
-    pub let CollectionPublicPath: PublicPath
-    pub let CollectionIFantastecPackNFTPublicPath: PublicPath
-    pub let OperatorStoragePath: StoragePath
-    pub let OperatorPrivPath: PrivatePath
+    access(all) var totalSupply: UInt64
+    access(all) let CollectionStoragePath: StoragePath
+    access(all) let CollectionPublicPath: PublicPath
+    access(all) let CollectionIFantastecPackNFTPublicPath: PublicPath
+    access(all) let OperatorStoragePath: StoragePath
 
     access(contract) let packs: @{UInt64: Pack}
 
     // from IFantastecPackNFT
-    pub event Burned(id: UInt64)
+    access(all) event Burned(id: UInt64)
     // from NonFungibleToken
-    pub event ContractInitialized()
-    pub event Withdraw(id: UInt64, from: Address?)
-    pub event Deposit(id: UInt64, to: Address?)
+    access(all) event ContractInitialized()
+    access(all) event Withdraw(id: UInt64, from: Address?)
+    access(all) event Deposit(id: UInt64, to: Address?)
     // contract specific
-    pub event Minted(id: UInt64)
+    access(all) event Minted(id: UInt64)
 
-    pub resource FantastecPackNFTOperator: IFantastecPackNFT.IOperator {
-        pub fun mint(packId: UInt64, productId: UInt64): @NFT{
+    access(all) resource FantastecPackNFTOperator: IFantastecPackNFT.IOperator {
+        access(IFantastecPackNFT.Owner) fun mint(packId: UInt64, productId: UInt64): @{IFantastecPackNFT.NFT}{
             let packNFT <- create NFT(packId: packId, productId: productId)
             FantastecPackNFT.totalSupply = FantastecPackNFT.totalSupply + 1
             emit Minted(id: packNFT.id)
@@ -34,13 +35,13 @@ pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
             return <- packNFT
         }
 
-        pub fun open(id: UInt64, recipient: Address) {
+        access(IFantastecPackNFT.Owner) fun open(id: UInt64, recipient: Address) {
             let pack <- FantastecPackNFT.packs.remove(key: id) ?? panic("cannot find pack with ID ".concat(id.toString()))
             pack.open(recipient: recipient)
             FantastecPackNFT.packs[id] <-! pack
         }
 
-        pub fun addFantastecNFT(id: UInt64, nft: @FantastecNFT.NFT) {
+        access(IFantastecPackNFT.Owner) fun addFantastecNFT(id: UInt64, nft: @FantastecNFT.NFT) {
             let pack <- FantastecPackNFT.packs.remove(key: id) ?? panic("cannot find pack with ID ".concat(id.toString()))
             pack.addFantastecNFT(nft: <- nft)
             FantastecPackNFT.packs[id] <-! pack
@@ -49,13 +50,13 @@ pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
         init(){}
     }
 
-    pub resource Pack: IFantastecPackNFT.IFantastecPack {
-        pub var ownedNFTs: @{UInt64: FantastecNFT.NFT}
+    access(all) resource Pack: IFantastecPackNFT.IFantastecPack {
+        access(all) var ownedNFTs: @{UInt64: FantastecNFT.NFT}
 
-        pub fun open(recipient: Address) {
+        access(IFantastecPackNFT.Owner) fun open(recipient: Address) {
             let receiver = getAccount(recipient)
-                .getCapability(FantastecNFT.CollectionPublicPath)
-                .borrow<&{NonFungibleToken.CollectionPublic}>()
+                .capabilities.get<&{NonFungibleToken.CollectionPublic}>(FantastecNFT.CollectionPublicPath)
+                .borrow()
                 ?? panic("Could not get receiver reference to the NFT Collection - ".concat(recipient.toString()))
             for key in self.ownedNFTs.keys {
                 let nft <-! self.ownedNFTs.remove(key: key)
@@ -63,7 +64,7 @@ pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
             }
         }
 
-        pub fun addFantastecNFT(nft: @FantastecNFT.NFT){
+        access(all) fun addFantastecNFT(nft: @FantastecNFT.NFT) {
             let id = nft.id
             self.ownedNFTs[id] <-! nft
         }
@@ -71,17 +72,13 @@ pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
         init() {
             self.ownedNFTs <- {}
         }
-
-        destroy() {
-            destroy self.ownedNFTs
-        }
     }
 
-    pub resource NFT: NonFungibleToken.INFT, MetadataViews.Resolver {
-        pub let id: UInt64
-        pub let productId: UInt64
+    access(all) resource NFT: IFantastecPackNFT.NFT, Burner.Burnable, ViewResolver.Resolver {
+        access(all) let id: UInt64
+        access(all) let productId: UInt64
 
-        destroy() {
+        access(contract) fun burnCallback() {
             FantastecPackNFT.totalSupply = FantastecPackNFT.totalSupply - (1 as UInt64)
             let pack <- FantastecPackNFT.packs.remove(key: self.id)
                 ?? panic("cannot find pack with ID ".concat(self.id.toString()))
@@ -95,53 +92,45 @@ pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
         }
 
         // from MetadataViews.Resolver
-        pub fun getViews(): [Type] {
+        access(all) view fun getViews(): [Type] {
             return [
                 Type<MetadataViews.Display>()
-                // Type<MetadataViews.ExternalURL>(),
-                // Type<MetadataViews.Medias>(),
-                // Type<MetadataViews.NFTCollectionData>(),
-                // Type<MetadataViews.NFTCollectionDisplay>(),
-                // Type<MetadataViews.Royalties>(),
-                // Type<MetadataViews.Serial>(),
-                // Type<MetadataViews.Traits>()
             ]
         }
 
         // from MetadataViews.Resolver
-        pub fun resolveView(_ view: Type): AnyStruct? {
+        access(all) view fun resolveView(_ view: Type): AnyStruct? {
             switch view {
                 case Type<MetadataViews.Display>():
                     return MetadataViews.Display(
                         name: "Fantastec Pack",
                         description: "Reveals Fantstec NFTs when opened",
-                        thumbnail: MetadataViews.HTTPFile(self.getThumbnailPath())
+                        thumbnail: MetadataViews.HTTPFile(url: self.getThumbnailPath())
                     )
             }
             return nil
         }
 
-        pub fun getThumbnailPath(): String {
+        access(all) view fun getThumbnailPath(): String {
             return "path/to/thumbnail/".concat(self.id.toString())
+        }
+
+        access(all) fun createEmptyCollection(): @{NonFungibleToken.Collection} { 
+            return <- create Collection()
         }
     }
 
-    pub resource Collection:
-        NonFungibleToken.Provider,
-        NonFungibleToken.Receiver,
-        NonFungibleToken.CollectionPublic,
-        IFantastecPackNFT.IFantastecPackNFTCollectionPublic
-    {
+    access(all) resource Collection: IFantastecPackNFT.IFantastecPackNFTCollectionPublic {
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field
-        pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
+        access(all) var ownedNFTs: @{UInt64: {NonFungibleToken.NFT}}
 
         init () {
             self.ownedNFTs <- {}
         }
 
         // withdraw removes an NFT from the collection and moves it to the caller
-        pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
+        access(NonFungibleToken.Withdraw) fun withdraw(withdrawID: UInt64): @{NonFungibleToken.NFT} {
             let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
             emit Withdraw(id: token.id, from: self.owner?.address)
             return <- token
@@ -149,7 +138,7 @@ pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
 
         // deposit takes a NFT and adds it to the collections dictionary
         // and adds the ID to the id array
-        pub fun deposit(token: @NonFungibleToken.NFT) {
+        access(all) fun deposit(token: @{NonFungibleToken.NFT}) {
             let token <- token as! @FantastecPackNFT.NFT
 
             let id: UInt64 = token.id
@@ -162,23 +151,41 @@ pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
         }
 
         // getIDs returns an array of the IDs that are in the collection
-        pub fun getIDs(): [UInt64] {
+        access(all) view fun getIDs(): [UInt64] {
             return self.ownedNFTs.keys
         }
 
         // borrowNFT gets a reference to an NFT in the collection
         // so that the caller can read its metadata and call its methods
-        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
-            return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
+        access(all) view fun borrowNFT(_ id: UInt64): &{NonFungibleToken.NFT}? {
+            return &self.ownedNFTs[id]
         }
 
-        destroy() {
-            destroy self.ownedNFTs
+        access(all) fun createEmptyCollection(): @{NonFungibleToken.Collection} { 
+            return <- create Collection()
+        }
+
+        access(all) view fun getSupportedNFTTypes(): {Type: Bool} {
+            return {
+                Type<@NFT>(): true
+            }
+        }
+
+        access(all) view fun isSupportedNFTType(type: Type): Bool {
+            return type == Type<@NFT>()
         }
     }
 
-    pub fun createEmptyCollection(): @NonFungibleToken.Collection {
+    access(all) fun createEmptyCollection(nftType: Type): @{NonFungibleToken.Collection} {
         return <- create Collection()
+    }
+
+    access(all) view fun getContractViews(resourceType: Type?): [Type] {
+        return []
+    }
+
+    access(all) fun resolveContractView(resourceType: Type?, viewType: Type): AnyStruct? {
+        return nil
     }
 
     init(){
@@ -189,18 +196,18 @@ pub contract FantastecPackNFT: NonFungibleToken, IFantastecPackNFT {
         self.CollectionPublicPath = /public/FantastecPackNFTCollection
         self.CollectionIFantastecPackNFTPublicPath = /public/FantastecPackNFTCollection
         self.OperatorStoragePath = /storage/FantastecPackNFTOperatorCollection
-        self.OperatorPrivPath = /private/FantastecPackNFTOperatorCollection
 
         // Create a collection to receive Pack NFTs
         let collection <- create Collection()
-        self.account.save(<-collection, to: self.CollectionStoragePath)
-        self.account.link<&Collection{NonFungibleToken.CollectionPublic}>(self.CollectionPublicPath, target: self.CollectionStoragePath)
-        self.account.link<&Collection{IFantastecPackNFT.IFantastecPackNFTCollectionPublic}>(self.CollectionIFantastecPackNFTPublicPath, target: self.CollectionStoragePath)
+        self.account.storage.save(<-collection, to: self.CollectionStoragePath)
+
+        let cap = self.account.capabilities.storage.issue<&{NonFungibleToken.CollectionPublic, IFantastecPackNFT.IFantastecPackNFTCollectionPublic}>(self.CollectionStoragePath)
+        self.account.capabilities.publish(cap, at: self.CollectionPublicPath)
 
         // Create a operator to share mint capability with proxy
         let operator <- create FantastecPackNFTOperator()
-        self.account.save(<-operator, to: self.OperatorStoragePath)
-        self.account.link<&FantastecPackNFTOperator{IFantastecPackNFT.IOperator}>(self.OperatorPrivPath, target: self.OperatorStoragePath)
-    }
+        self.account.storage.save(<-operator, to: self.OperatorStoragePath)
 
+        self.account.capabilities.storage.issue<&{IFantastecPackNFT.IOperator}>(self.OperatorStoragePath)
+    }
 }

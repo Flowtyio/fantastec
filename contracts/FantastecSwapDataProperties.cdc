@@ -6,16 +6,18 @@ The purpose of this contract is to define the metadata objects that are properti
 (as defined in the fantastecSwapDataV2 contract)
 */
 
-pub contract FantastecSwapDataProperties {
+access(all) contract FantastecSwapDataProperties {
+  access(all) entitlement Add
+    
   access(contract) var arrayTypes: [String]
 
-  pub struct interface MetadataElement {
-    pub let id: UInt64
+  access(all) struct interface MetadataElement {
+    access(all) let id: UInt64
   }
 
-  pub struct ProductCollectionChance {
-    pub let collectionId : UInt64
-    pub let chance: UFix64
+  access(all) struct ProductCollectionChance {
+    access(all) let collectionId : UInt64
+    access(all) let chance: UFix64
     init (
       _ collectionId: UInt64,
       _ chance: UFix64
@@ -25,28 +27,28 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct ProductContent: MetadataElement {
-    pub let id: UInt64;
-    pub let content: [ProductCollectionChance];
+  access(all) struct ProductContent: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let content: [ProductCollectionChance];
     init (
       _ id: UInt64
     ){
       self.id = id;
       self.content = [];
     }
-    pub fun add(_ collectionId: UInt64, _ chance: UFix64){
+    access(Add) fun add(_ collectionId: UInt64, _ chance: UFix64){
       let productCollectionChance = ProductCollectionChance(collectionId, chance)
       self.content.append(productCollectionChance)
     }
   }
 
-  pub struct Media: MetadataElement {
-    pub let id: UInt64;
-    pub let url: String;
-    pub let type: String;
-    pub let mediaType: String;
-    pub let ipfsCid: String;
-    pub let hash: String;
+  access(all) struct Media: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let url: String;
+    access(all) let type: String;
+    access(all) let mediaType: String;
+    access(all) let ipfsCid: String;
+    access(all) let hash: String;
 
     init(
       _ id: UInt64,
@@ -65,10 +67,10 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Social: MetadataElement {
-    pub let id: UInt64;
-    pub let url: String;
-    pub let type: String;
+  access(all) struct Social: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let url: String;
+    access(all) let type: String;
 
     init(
       _ id: UInt64,
@@ -81,9 +83,9 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Partner: MetadataElement {
-    pub let id: UInt64;
-    pub let name: String;
+  access(all) struct Partner: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let name: String;
 
     init(
       _ id: UInt64,
@@ -94,10 +96,10 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Team: MetadataElement {
-    pub let id: UInt64;
-    pub let name: String;
-    pub let gender: String;
+  access(all) struct Team: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let name: String;
+    access(all) let gender: String;
 
     init(
       _ id: UInt64,
@@ -110,9 +112,9 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Sport: MetadataElement {
-    pub let id: UInt64;
-    pub let name: String;
+  access(all) struct Sport: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let name: String;
 
     init(
       _ id: UInt64,
@@ -123,9 +125,9 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Sku: MetadataElement {
-    pub let id: UInt64;
-    pub let name: String;
+  access(all) struct Sku: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let name: String;
 
     init(
       _ id: UInt64,
@@ -136,11 +138,11 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Season: MetadataElement {
-    pub let id: UInt64;
-    pub let name: String;
-    pub let startDate: String;
-    pub let endDate: String;
+  access(all) struct Season: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let name: String;
+    access(all) let startDate: String;
+    access(all) let endDate: String;
 
     init(
       _ id: UInt64,
@@ -155,10 +157,10 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Level: MetadataElement {
-    pub let id: UInt64;
-    pub let name: String;
-    pub let scarcity: String;
+  access(all) struct Level: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let name: String;
+    access(all) let scarcity: String;
 
     init(
       _ id: UInt64,
@@ -171,12 +173,12 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Player: MetadataElement {
-    pub let id: UInt64;
-    pub let name: String;
-    pub let gender: String;
-    pub let position: String?;
-    pub let shirtNumber: String?;
+  access(all) struct Player: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let name: String;
+    access(all) let gender: String;
+    access(all) let position: String?;
+    access(all) let shirtNumber: String?;
     init(
       _ id: UInt64,
       _ name: String,
@@ -192,10 +194,10 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct Royalty: MetadataElement {
-    pub let id: UInt64;
-    pub let address: Address;
-    pub let percentage: UFix64;
+  access(all) struct Royalty: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let address: Address;
+    access(all) let percentage: UFix64;
     init(
       _ id: UInt64,
       _ address: Address,
@@ -210,11 +212,11 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct License: MetadataElement {
-    pub let id: UInt64;
-    pub let name: String;
-    pub let url: String;
-    pub let dateAwarded: String;
+  access(all) struct License: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let name: String;
+    access(all) let url: String;
+    access(all) let dateAwarded: String;
     init(
       _ id: UInt64,
       _ name: String,
@@ -228,8 +230,8 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct CardId: MetadataElement {
-    pub let id: UInt64;
+  access(all) struct CardId: MetadataElement {
+    access(all) let id: UInt64;
     init(
       _ id: UInt64,
     ){
@@ -237,9 +239,9 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct MintVolume: MetadataElement {
-    pub let id: UInt64;
-    pub let value: UInt64;
+  access(all) struct MintVolume: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let value: UInt64;
     init(
       _ id: UInt64,
       _ value: UInt64,
@@ -249,13 +251,13 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct RedeemInfo: MetadataElement {
-    pub let id: UInt64;
-    pub let retailerName: String;
-    pub let retailerPinHash: String;
-    pub let retailerAddress: Address;
-    pub let validFrom: UFix64?;
-    pub let validTo: UFix64?;
+  access(all) struct RedeemInfo: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let retailerName: String;
+    access(all) let retailerPinHash: String;
+    access(all) let retailerAddress: Address;
+    access(all) let validFrom: UFix64?;
+    access(all) let validTo: UFix64?;
     init(
       _ id: UInt64,
       _ retailerName: String,
@@ -273,16 +275,16 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct RedeemInfoV2: MetadataElement {
-    pub let id: UInt64;
-    pub let retailerName: String;
-    pub let retailerPinHash: String;
-    pub let retailerAddress: Address;
-    pub let validFrom: UFix64?;
-    pub let validTo: UFix64?;
-    pub let type: String;
-    pub let t_and_cs: String;
-    pub let description: String;
+  access(all) struct RedeemInfoV2: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let retailerName: String;
+    access(all) let retailerPinHash: String;
+    access(all) let retailerAddress: Address;
+    access(all) let validFrom: UFix64?;
+    access(all) let validTo: UFix64?;
+    access(all) let type: String;
+    access(all) let t_and_cs: String;
+    access(all) let description: String;
 
     init(
       _ id: UInt64,
@@ -307,12 +309,12 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub struct NewsFeed: MetadataElement {
-    pub let id: UInt64
-    pub let title: String
-    pub let publishedDate: UFix64
-    pub let buttonUrl: String
-    pub let buttonText: String
+  access(all) struct NewsFeed: MetadataElement {
+    access(all) let id: UInt64
+    access(all) let title: String
+    access(all) let publishedDate: UFix64
+    access(all) let buttonUrl: String
+    access(all) let buttonText: String
     init(
       _ id: UInt64,
       _ title: String,
@@ -328,9 +330,9 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-    pub struct BlockedUsers: MetadataElement {
-    pub let id: UInt64;
-    pub let blockedAddresses: [Address];
+  access(all) struct BlockedUsers: MetadataElement {
+    access(all) let id: UInt64;
+    access(all) let blockedAddresses: [Address];
     init(
       _ id: UInt64,
       _ blockedAddresses: [Address]
@@ -340,25 +342,25 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub fun IsArrayMetadataType(_ type: String): Bool {
+  access(all) fun IsArrayMetadataType(_ type: String): Bool {
     return self.arrayTypes.contains(type);
   }
 
-  pub fun parseUInt64(_ string: String?): UInt64? {
+  access(all) fun parseUInt64(_ string: String?): UInt64? {
     if (string == nil) {
       return nil
     }
     return UInt64.fromString(string!)
   }
 
-  pub fun parseUFix64(_ string: String?): UFix64? {
+  access(all) fun parseUFix64(_ string: String?): UFix64? {
     if (string == nil) {
       return nil
     }
     return UFix64.fromString(string!)
   }
 
-  pub fun parseAddress(_ string: String?): Address? {
+  access(all) fun parseAddress(_ string: String?): Address? {
     if (string == nil) {
       return nil
     }
@@ -382,11 +384,11 @@ pub contract FantastecSwapDataProperties {
     return address
   }
 
-  pub fun addToMetadata(
+  access(all) fun addToMetadata(
     _ type: String,
-    _ metadataArray: [AnyStruct{MetadataElement}],
-    _ metadata: AnyStruct{MetadataElement},
-  ): [AnyStruct{MetadataElement}] {
+    _ metadataArray: [{MetadataElement}],
+    _ metadata: {MetadataElement},
+  ): [{MetadataElement}] {
     if (self.IsArrayMetadataType(type)) {
       var updatedMetadataArray = self.removeMetadataElementById(metadataArray, metadata.id)
       updatedMetadataArray.append(metadata)
@@ -400,11 +402,11 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub fun removeFromMetadata(
+  access(all) fun removeFromMetadata(
     _ type: String,
-    _ metadataArray: [AnyStruct{MetadataElement}],
+    _ metadataArray: [{MetadataElement}],
     _ id: UInt64?,
-  ): [AnyStruct{MetadataElement}] {
+  ): [{MetadataElement}] {
     if (self.IsArrayMetadataType(type)) {
       let updatedMetadataArray = self.removeMetadataElementById(metadataArray, id!)
       return updatedMetadataArray
@@ -417,10 +419,10 @@ pub contract FantastecSwapDataProperties {
     }
   }
 
-  pub fun removeMetadataElementById(
-    _ array: [AnyStruct{MetadataElement}],
+  access(all) fun removeMetadataElementById(
+    _ array: [{MetadataElement}],
     _ id: UInt64,
-  ): [AnyStruct{MetadataElement}] {
+  ): [{MetadataElement}] {
     if (array == nil) {
       return []
     }

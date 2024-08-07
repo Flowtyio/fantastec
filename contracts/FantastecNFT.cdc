@@ -5,34 +5,36 @@ import "FantastecSwapDataV2"
 import "FantastecSwapDataProperties"
 import "ViewResolver"
 
-pub contract FantastecNFT: NonFungibleToken, ViewResolver {
+access(all) contract FantastecNFT: NonFungibleToken {
+
+  access(all) entitlement Owner
 
   // Events
   //
-  pub event ContractInitialized()
-  pub event Withdraw(id: UInt64, from: Address?)
-  pub event Deposit(id: UInt64, to: Address?)
-  pub event Minted(id: UInt64)
-  pub event Destroyed(id: UInt64, reason: String)
+  access(all) event ContractInitialized()
+  access(all) event Withdraw(id: UInt64, from: Address?)
+  access(all) event Deposit(id: UInt64, to: Address?)
+  access(all) event Minted(id: UInt64)
+  access(all) event Destroyed(id: UInt64, reason: String)
 
   // Named Paths
   //
-  pub let CollectionStoragePath: StoragePath
-  pub let CollectionPublicPath: PublicPath
-  pub let MinterStoragePath: StoragePath
+  access(all) let CollectionStoragePath: StoragePath
+  access(all) let CollectionPublicPath: PublicPath
+  access(all) let MinterStoragePath: StoragePath
 
   // totalSupply
   // The total number of FantastecNFT that have ever been minted
-  pub var totalSupply: UInt64
+  access(all) var totalSupply: UInt64
 
-  pub struct Item {
-    pub let id: UInt64
-    pub let cardId: UInt64
-    pub let edition: UInt64
-    pub let mintNumber: UInt64
-    pub let licence: String
-    pub let dateMinted: String
-    pub let metadata: {String: String}
+  access(all) struct Item {
+    access(all) let id: UInt64
+    access(all) let cardId: UInt64
+    access(all) let edition: UInt64
+    access(all) let mintNumber: UInt64
+    access(all) let licence: String
+    access(all) let dateMinted: String
+    access(all) let metadata: {String: String}
     init(
         id: UInt64,
         cardId: UInt64,
@@ -54,15 +56,15 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
   // NFT: FantastecNFT.NFT
   // Raw NFT, doesn't currently restrict the caller instantiating an NFT
   //
-  pub resource NFT: NonFungibleToken.INFT, MetadataViews.Resolver {
+  access(all) resource NFT: NonFungibleToken.NFT {
     // The token's ID
-    pub let id: UInt64
-    pub let cardId: UInt64
-    pub let edition: UInt64
-    pub let mintNumber: UInt64
-    pub let licence: String
-    pub let dateMinted: String
-    pub let metadata: {String: String}
+    access(all) let id: UInt64
+    access(all) let cardId: UInt64
+    access(all) let edition: UInt64
+    access(all) let mintNumber: UInt64
+    access(all) let licence: String
+    access(all) let dateMinted: String
+    access(all) let metadata: {String: String}
 
     // initializer
     //
@@ -94,7 +96,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
       return card
     }
 
-    access(self) fun getCardCollection(): FantastecSwapDataV2.CardCollectionData? {
+    access(self) fun getCardCollection(): &FantastecSwapDataV2.CardCollectionData? {
       let card = self.getCard()
       if (card != nil) {
         let cardCollection = FantastecSwapDataV2.getCardCollectionById(id: card!.collectionId)
@@ -111,7 +113,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
       if (royaltiesMetadata != nil) {
         for royaltyElement in royaltiesMetadata! {
           let royalty = royaltyElement as! FantastecSwapDataProperties.Royalty
-          let receiver = getAccount(royalty.address).getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+          let receiver = getAccount(royalty.address).capabilities.get<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
           let cut = royalty.percentage / 100.0
           let description = royalty.id.toString()
           royalties.append(
@@ -150,7 +152,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
 
     access(self) fun getCardCollectionMediaFile(_ mediaType: String): MetadataViews.HTTPFile {
       let cardCollection = self.getCardCollection()
-      let cardCollectionMetadata = cardCollection?.metadata ?? {}
+      let cardCollectionMetadata = cardCollection?.metadata ?? &{}
       let mediaMetadata = cardCollectionMetadata["media"]
       if (mediaMetadata != nil) {
         for mediaElement in mediaMetadata! {
@@ -165,7 +167,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
 
     access(self) fun getCardCollectionSocials(): {String: MetadataViews.ExternalURL} {
       let cardCollection = self.getCardCollection()
-      let cardCollectionMetadata = cardCollection?.metadata ?? {}
+      let cardCollectionMetadata = cardCollection?.metadata ?? &{}
       let socialsMetadata = cardCollectionMetadata["socials"]
       var socialsDictionary: {String: MetadataViews.ExternalURL} = {}
       if (socialsMetadata != nil) {
@@ -179,7 +181,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
 
     access(self) fun getCardCollectionPartner(): FantastecSwapDataProperties.Partner? {
       let cardCollection = self.getCardCollection()
-      let cardCollectionMetadata = cardCollection?.metadata ?? {}
+      let cardCollectionMetadata = cardCollection?.metadata ?? &{}
       let partnerMetadata = cardCollectionMetadata["partner"]
       if (partnerMetadata != nil && partnerMetadata!.length > 0) {
         let partner = partnerMetadata![0] as? FantastecSwapDataProperties.Partner
@@ -190,7 +192,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
 
     access(self) fun getCardCollectionTeam(): FantastecSwapDataProperties.Team? {
       let cardCollection = self.getCardCollection()
-      let cardCollectionMetadata = cardCollection?.metadata ?? {}
+      let cardCollectionMetadata = cardCollection?.metadata ?? &{}
       let teamMetadata = cardCollectionMetadata["team"]
       if (teamMetadata != nil && teamMetadata!.length > 0) {
         let team = teamMetadata![0] as? FantastecSwapDataProperties.Team
@@ -201,7 +203,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
 
     access(self) fun getCardCollectionSeason(): FantastecSwapDataProperties.Season? {
       let cardCollection = self.getCardCollection()
-      let cardCollectionMetadata = cardCollection?.metadata ?? {}
+      let cardCollectionMetadata = cardCollection?.metadata ?? &{}
       let seasonMetadata = cardCollectionMetadata["season"]
       if (seasonMetadata != nil && seasonMetadata!.length > 0) {
         let season = seasonMetadata![0] as? FantastecSwapDataProperties.Season
@@ -246,7 +248,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
     }
 
     access(self) fun extractLevelFromMetadata(
-      metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+      metadata: &{String: [{FantastecSwapDataProperties.MetadataElement}]}
     ): FantastecSwapDataProperties.Level? {
       let levelMetadata = metadata["level"]
       if (levelMetadata != nil && levelMetadata!.length > 0) {
@@ -260,11 +262,12 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
       // If the card has a level, use that - otherwise use the collection level
       let card = self.getCard()
       let cardMetadata = card?.metadata ?? {}
-      var level = self.extractLevelFromMetadata(metadata: cardMetadata)
+      let ref: &{String: [{FantastecSwapDataProperties.MetadataElement}]} = &cardMetadata
+      var level = self.extractLevelFromMetadata(metadata: ref)
 
       if (level == nil) {
         let cardCollection = self.getCardCollection()
-        let cardCollectionMetadata = cardCollection?.metadata ?? {}
+        let cardCollectionMetadata = cardCollection?.metadata ?? &{}
         level = self.extractLevelFromMetadata(metadata: cardCollectionMetadata)
       }
       return level
@@ -389,7 +392,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
       return traits
     }
 
-    pub fun getViews(): [Type] {
+    access(all) view fun getViews(): [Type] {
       return [
         Type<MetadataViews.Display>(),
         Type<MetadataViews.Editions>(),
@@ -402,7 +405,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
       ]
     }
 
-    pub fun resolveView(_ view: Type): AnyStruct? {
+    access(all) fun resolveView(_ view: Type): AnyStruct? {
       switch (view) {
         case Type<MetadataViews.Display>():
           let card = self.getCard()
@@ -431,7 +434,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
           if (animation.uri() != "") {
             let animationMedia = MetadataViews.Media(
               file: animation,
-              type: "video/mp4"
+              mediaType: "video/mp4"
             )
             items.append(animationMedia)
           }
@@ -439,7 +442,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
           if (frame.uri() != "") {
             let frameMedia = MetadataViews.Media(
               file: frame,
-              type: "video/mp4"
+              mediaType: "video/mp4"
             )
             items.append(frameMedia)
           }
@@ -447,7 +450,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
           if (image.uri() != "") {
             let imageMedia = MetadataViews.Media(
               file: image,
-              type: "image/png" // TODO: get file extensiuon
+              mediaType: "image/png" // TODO: get file extensiuon
             )
             items.append(imageMedia)
           }
@@ -455,7 +458,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
           if (thumbnail.uri() != "") {
             let thumbnailMedia = MetadataViews.Media(
               file: thumbnail,
-              type: "image/jpeg"
+              mediaType: "image/jpeg"
             )
             items.append(thumbnailMedia)
           }
@@ -484,12 +487,10 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
           return MetadataViews.NFTCollectionData(
             storagePath: FantastecNFT.CollectionStoragePath,
             publicPath: FantastecNFT.CollectionPublicPath,
-            providerPath: /private/FantastecNFTCollection,
-            publicCollection: Type<&FantastecNFT.Collection{FantastecNFT.FantastecNFTCollectionPublic}>(),
-            publicLinkedType: Type<&FantastecNFT.Collection{FantastecNFT.FantastecNFTCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}>(),
-            providerLinkedType: Type<&FantastecNFT.Collection{NonFungibleToken.CollectionPublic, FantastecNFT.FantastecNFTCollectionPublic,NonFungibleToken.Provider,MetadataViews.ResolverCollection}>(),
-            createEmptyCollectionFunction: (fun (): @NonFungibleToken.Collection {
-                return <- FantastecNFT.createEmptyCollection()
+            publicCollection: Type<&{FantastecNFT.FantastecNFTCollectionPublic}>(),
+            publicLinkedType: Type<&{FantastecNFT.FantastecNFTCollectionPublic,NonFungibleToken.Collection}>(),
+            createEmptyCollectionFunction: (fun (): @{NonFungibleToken.Collection} {
+                return <- FantastecNFT.createEmptyCollection(nftType: Type<@NFT>())
             })
           )
 
@@ -499,11 +500,11 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
           let description = self.getNFTCollectionDisplayDescription()
           let squareImageMedia = MetadataViews.Media(
             file: self.getCardCollectionMediaFile("COLLECTION_LOGO_IMAGE"),
-            type: "image/png"
+            mediaType: "image/png"
           )
           let bannerImageMedia = MetadataViews.Media(
             file: self.getCardCollectionMediaFile("COLLECTION_HEADER_IMAGE"),
-            type: "image/png"
+            mediaType: "image/png"
           )
           return MetadataViews.NFTCollectionDisplay(
             name: name,
@@ -526,16 +527,18 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
 
       return nil
     }
+
+    access(all) fun createEmptyCollection(): @{NonFungibleToken.Collection} {
+        return <- FantastecNFT.createEmptyCollection(nftType: self.getType())
+    }
   }
 
   // This is the interface that users can cast their FantastecNFT Collection as
   // to allow others to deposit FantastecNFTs into their Collection. It also allows for reading
   // the details of FantastecNFTs in the Collection.
-  pub resource interface FantastecNFTCollectionPublic {
-    pub fun deposit(token: @NonFungibleToken.NFT)
-    pub fun getIDs(): [UInt64]
-    pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
-    pub fun borrowFantastecNFT(id: UInt64): &FantastecNFT.NFT? {
+  access(all) resource interface FantastecNFTCollectionPublic: NonFungibleToken.Collection {
+    access(all) fun deposit(token: @{NonFungibleToken.NFT})
+    access(all) fun borrowFantastecNFT(id: UInt64): &FantastecNFT.NFT? {
       post {
         (result == nil) || (result?.id == id):
           "Cannot borrow FantastecNFT reference: The ID of the returned reference is incorrect"
@@ -546,24 +549,23 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
   // Collection
   // A collection of Moment NFTs owned by an account
   //
-  pub resource Collection: FantastecNFTCollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, MetadataViews.ResolverCollection {
+  access(all) resource Collection: FantastecNFTCollectionPublic {
     // dictionary of NFT conforming tokens
     // NFT is a resource type with an UInt64 ID field
     // metadataObjs is a dictionary of metadata mapped to NFT IDs
     //
-    pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
+    access(all) var ownedNFTs: @{UInt64: {NonFungibleToken.NFT}}
 
     // deposit
     // Takes a NFT and adds it to the collections dictionary
     // and adds the ID to the id array
     //
-    pub fun deposit(token: @NonFungibleToken.NFT) {
-      let token <- token as! @FantastecNFT.NFT
+    access(all) fun deposit(token: @{NonFungibleToken.NFT}) {
+      let token <- token
 
       let id: UInt64 = token.id
 
       // add the new token to the dictionary which removes the old one
-      // TODO: This should never happen
       let oldToken <- self.ownedNFTs[id] <- token
 
       emit Deposit(id: id, to: self.owner?.address)
@@ -578,7 +580,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
     // getIDs
     // Returns an array of the IDs that are in the collection
     //
-    pub fun getIDs(): [UInt64] {
+    access(all) view fun getIDs(): [UInt64] {
       return self.ownedNFTs.keys
     }
 
@@ -586,8 +588,20 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
     // Gets a reference to an NFT in the collection
     // so that the caller can read its metadata and call its methods
     //
-    pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
-      return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
+    access(all) view fun borrowNFT(_ id: UInt64): &{NonFungibleToken.NFT}? {
+      return &self.ownedNFTs[id]
+    }
+
+    access(all) view fun getSupportedNFTTypes(): {Type: Bool} {
+        return {Type<@NFT>(): true}
+    }
+
+    access(all) view fun isSupportedNFTType(type: Type): Bool {
+        return type == Type<@NFT>()
+    }
+
+    access(all) fun createEmptyCollection(): @{NonFungibleToken.Collection} {
+        return <- create Collection()
     }
 
     // borrowFantastecNFT
@@ -595,35 +609,24 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
     // exposing all of its fields.
     // This is safe as there are no functions that can be called on the FantastecNFT.
     //
-    pub fun borrowFantastecNFT(id: UInt64): &FantastecNFT.NFT? {
+    access(all) fun borrowFantastecNFT(id: UInt64): &FantastecNFT.NFT? {
       if self.ownedNFTs[id] != nil {
-        let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT?
-        return ref! as! &FantastecNFT.NFT
-      } else {
-        return nil
+        let ref = (&self.ownedNFTs[id] as &{NonFungibleToken.NFT}?)!
+        return ref as! &FantastecNFT.NFT
       }
+
+      return nil
     }
 
     // withdraw
     // Removes an NFT from the collection and moves it to the caller
     //
-    pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
+    access(NonFungibleToken.Withdraw) fun withdraw(withdrawID: UInt64): @{NonFungibleToken.NFT} {
       let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
       emit Withdraw(id: token.id, from: self.owner?.address)
 
       return <-token
-    }
-
-    pub fun borrowViewResolver(id: UInt64): &AnyResource{MetadataViews.Resolver} {
-      let nft = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
-      let fantastecNFT = nft as! &FantastecNFT.NFT
-      return fantastecNFT as &AnyResource{MetadataViews.Resolver}
-    }
-
-    // destructor
-    destroy() {
-      destroy self.ownedNFTs
     }
 
     // initializer
@@ -633,23 +636,16 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
     }
   }
 
-  // createEmptyCollection
-  // public function that anyone can call to create a new empty collection
-  //
-  pub fun createEmptyCollection(): @NonFungibleToken.Collection {
-    return <- create Collection()
-  }
-
   // NFTMinter
   // Resource that an admin or something similar would own to be
   // able to mint new NFTs
   //
-  pub resource NFTMinter {
+  access(all) resource NFTMinter {
     // Mints a new NFTs
     // Increments mintNumber
     // returns the newly minted NFT
     //
-    pub fun mintAndReturnNFT(
+    access(Owner) fun mintAndReturnNFT(
         cardId: UInt64, 
         edition: UInt64, 
         mintNumber: UInt64, 
@@ -657,7 +653,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
         dateMinted: String, 
         metadata: {String: String}): @FantastecNFT.NFT {
 
-      let newId = FantastecNFT.totalSupply + (1 as UInt64)
+      let newId = FantastecNFT.totalSupply + 1
 
       let nftData: Item = Item(
         id: FantastecNFT.totalSupply,
@@ -683,7 +679,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
     // Increments mintNumber
     // deposits the NFT into the recipients collection using their collection reference
     //
-    pub fun mintNFT(
+    access(Owner) fun mintNFT(
         recipient: &{NonFungibleToken.CollectionPublic}, 
         cardId: UInt64, 
         edition: UInt64, 
@@ -711,18 +707,16 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
     /// @param view: The Type of the desired view.
     /// @return A structure representing the requested view.
     ///
-    pub fun resolveView(_ view: Type): AnyStruct? {
-        switch view {
+    access(all) fun resolveContractView(resourceType: Type?, viewType: Type): AnyStruct? {
+        switch viewType {
             case Type<MetadataViews.NFTCollectionData>():
                 return MetadataViews.NFTCollectionData(
                     storagePath: FantastecNFT.CollectionStoragePath,
                     publicPath: FantastecNFT.CollectionPublicPath,
-                    providerPath: /private/FantastecNFTCollection,
-                    publicCollection: Type<&FantastecNFT.Collection{FantastecNFT.FantastecNFTCollectionPublic}>(),
-                    publicLinkedType: Type<&FantastecNFT.Collection{FantastecNFT.FantastecNFTCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}>(),
-                    providerLinkedType: Type<&FantastecNFT.Collection{FantastecNFT.FantastecNFTCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Provider,MetadataViews.ResolverCollection}>(),
-                    createEmptyCollectionFunction: (fun (): @NonFungibleToken.Collection {
-                        return <-FantastecNFT.createEmptyCollection()
+                    publicCollection: Type<&{FantastecNFT.FantastecNFTCollectionPublic}>(),
+                    publicLinkedType: Type<&{FantastecNFT.FantastecNFTCollectionPublic}>(),
+                    createEmptyCollectionFunction: (fun (): @{NonFungibleToken.Collection} {
+                        return <-FantastecNFT.createEmptyCollection(nftType: Type<@NFT>())
                     })
                 )
             case Type<MetadataViews.NFTCollectionDisplay>():
@@ -755,16 +749,20 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
     /// @return An array of Types defining the implemented views. This value will be used by
     ///         developers to know which parameter to pass to the resolveView() method.
     ///
-    pub fun getViews(): [Type] {
+    access(all) view fun getContractViews(resourceType: Type?): [Type] {
         return [
             Type<MetadataViews.NFTCollectionData>(),
             Type<MetadataViews.NFTCollectionDisplay>()
         ]
     }
 
-  pub fun getTotalSupply(): UInt64 {
-    return FantastecNFT.totalSupply;
-  }
+    access(all) fun getTotalSupply(): UInt64 {
+        return FantastecNFT.totalSupply;
+    }
+
+    access(all) fun createEmptyCollection(nftType: Type): @{NonFungibleToken.Collection} {
+        return <- create Collection()
+    }
 
   init(){
     // Set our named paths
@@ -777,8 +775,8 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
 
     // Create a Minter resource and save it to storage
     let minter <- create NFTMinter()
-    let oldMinter <- self.account.load<@NFTMinter>(from: self.MinterStoragePath)
-    self.account.save(<-minter, to: self.MinterStoragePath)
+    let oldMinter <- self.account.storage.load<@NFTMinter>(from: self.MinterStoragePath)
+    self.account.storage.save(<-minter, to: self.MinterStoragePath)
     destroy oldMinter
 
     emit ContractInitialized()

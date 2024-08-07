@@ -1,5 +1,5 @@
-pub contract FantastecUtils {
-    pub fun splitString(input: String, delimiter: String): [String] {
+access(all) contract FantastecUtils {
+    access(all) fun splitString(input: String, delimiter: String): [String] {
         let parts: [String] = []
         var currentPart = ""
 
