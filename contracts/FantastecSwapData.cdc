@@ -38,7 +38,6 @@ pub contract FantastecSwapData {
   pub let AdminStoragePath: StoragePath
 
   pub struct Royalty {
-    // TODO might address instead by a capability to deposit FUSD into an account?
     pub let address: Address;
     pub let percentage: UFix64;
     init(

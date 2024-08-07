@@ -111,7 +111,7 @@ pub contract FantastecNFT: NonFungibleToken, ViewResolver {
       if (royaltiesMetadata != nil) {
         for royaltyElement in royaltiesMetadata! {
           let royalty = royaltyElement as! FantastecSwapDataProperties.Royalty
-          let receiver = getAccount(royalty.address).getCapability<&{FungibleToken.Receiver}>(/public/fusdBalance)
+          let receiver = getAccount(royalty.address).getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
           let cut = royalty.percentage / 100.0
           let description = royalty.id.toString()
           royalties.append(
