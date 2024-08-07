@@ -95,7 +95,21 @@
         "type": "file",
         "location": "emulator-account.pkey"
       }
-    }
+    },
+	"testnet-account": {
+		"address": "0x5dfd29993343f052",
+		"key": {
+			"type": "file",
+			"location": "testnet-key.pkey"
+		}
+	},
+	"mainnet-account": {
+		"address": "0x4bbff461fa8f6192",
+		"key": {
+			"type": "file",
+			"location": "mainnet-key.pkey"
+		}
+	}
   },
   "deployments": {
     "emulator": {
@@ -123,6 +137,36 @@
       "emulator-flowtoken": [
         "FlowToken"
       ]
-    }
+    },
+	"testnet": {
+		"testnet-account": [
+			"FantastecNFT",
+			"FantastecPackNFT",
+			"FantastecSwapData",
+			"FantastecSwapDataProperties",
+			"FantastecSwapDataV2",
+			"FantastecUtils",
+			"FlowTokenManager",
+			"IFantastecPackNFT",
+			"SocialProfileV3",
+			"StoreManagerV3",
+			"StoreManagerV5"
+		]
+	},
+	"mainnet": {
+		"mainnet-account": [
+			"FantastecNFT",
+			"FantastecPackNFT",
+			"FantastecSwapData",
+			"FantastecSwapDataProperties",
+			"FantastecSwapDataV2",
+			"FantastecUtils",
+			"FlowTokenManager",
+			"IFantastecPackNFT",
+			"SocialProfileV3",
+			"StoreManagerV3",
+			"StoreManagerV5"
+		]
+	}
   }
 }
