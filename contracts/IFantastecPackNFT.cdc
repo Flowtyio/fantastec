@@ -2,52 +2,50 @@ import Crypto
 import "NonFungibleToken"
 import "FantastecNFT"
 
-pub contract interface IFantastecPackNFT {
+access(all) contract interface IFantastecPackNFT {
+
+    access(all) entitlement Owner
+
     /// StoragePath for Collection Resource
-    pub let CollectionStoragePath: StoragePath
+    access(all) let CollectionStoragePath: StoragePath
 
     /// PublicPath expected for deposit
-    pub let CollectionPublicPath: PublicPath
+    access(all) let CollectionPublicPath: PublicPath
 
     /// PublicPath for receiving NFT
-    pub let CollectionIFantastecPackNFTPublicPath: PublicPath
+    access(all) let CollectionIFantastecPackNFTPublicPath: PublicPath
 
     /// StoragePath for the NFT Operator Resource (issuer owns this)
-    pub let OperatorStoragePath: StoragePath
-
-    /// PrivatePath to share IOperator interfaces with Operator (typically with PDS account)
-    pub let OperatorPrivPath: PrivatePath
+    access(all) let OperatorStoragePath: StoragePath
 
     /// Burned
     /// Emitted when a NFT has been burned
-    pub event Burned(id: UInt64 )
+    access(all) event Burned(id: UInt64 )
 
-    pub resource interface IOperator {
-        pub fun mint(packId: UInt64, productId: UInt64): @NFT
-        pub fun addFantastecNFT(id: UInt64, nft: @FantastecNFT.NFT)
-        pub fun open(id: UInt64, recipient: Address)
+    access(all) resource interface IOperator {
+        access(Owner) fun mint(packId: UInt64, productId: UInt64): @{NFT}
+        access(Owner) fun addFantastecNFT(id: UInt64, nft: @FantastecNFT.NFT)
+        access(Owner) fun open(id: UInt64, recipient: Address)
     }
 
-    pub resource FantastecPackNFTOperator: IOperator {
-        pub fun mint(packId: UInt64, productId: UInt64): @NFT
-        pub fun addFantastecNFT(id: UInt64, nft: @FantastecNFT.NFT)
-        pub fun open(id: UInt64, recipient: Address)
+    access(all) resource interface FantastecPackNFTOperator: IOperator {
+        access(Owner) fun mint(packId: UInt64, productId: UInt64): @{NFT}
+        access(Owner) fun addFantastecNFT(id: UInt64, nft: @FantastecNFT.NFT)
+        access(Owner) fun open(id: UInt64, recipient: Address)
     }
 
-    pub resource interface IFantastecPack {
-        pub var ownedNFTs: @{UInt64: FantastecNFT.NFT}
+    access(all) resource interface IFantastecPack {
+        access(all) var ownedNFTs: @{UInt64: FantastecNFT.NFT}
 
-        pub fun addFantastecNFT(nft: @FantastecNFT.NFT)
-        pub fun open(recipient: Address)
+        access(all) fun addFantastecNFT(nft: @FantastecNFT.NFT)
+        access(Owner) fun open(recipient: Address)
     }
 
-    pub resource NFT: NonFungibleToken.INFT {
-        pub let id: UInt64
+    access(all) resource interface NFT: NonFungibleToken.NFT {
+        access(all) let id: UInt64
     }
 
-    pub resource interface IFantastecPackNFTCollectionPublic {
-        pub fun deposit(token: @NonFungibleToken.NFT)
-        pub fun getIDs(): [UInt64]
-        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+    access(all) resource interface IFantastecPackNFTCollectionPublic: NonFungibleToken.Collection {
+        access(all) fun deposit(token: @{NonFungibleToken.NFT})
     }
 }

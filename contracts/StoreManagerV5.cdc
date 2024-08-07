@@ -1,49 +1,51 @@
 import "FantastecSwapDataProperties"
 import "StoreManagerV3"
 
-pub contract StoreManagerV5 {
-    pub event SectionAdded(id: UInt64)
-    pub event SectionRemoved(id: UInt64)
+access(all) contract StoreManagerV5 {
+    access(all) entitlement Manage
 
-    pub event ProductAdded(id: UInt64)
-    pub event ProductRemoved(id: UInt64)
-    pub event ProductUpdated(id: UInt64)
-    pub event ProductVolumeForSaleDecremented(id: UInt64, newVolumeForSale: UInt64)
+    access(all) event SectionAdded(id: UInt64)
+    access(all) event SectionRemoved(id: UInt64)
 
-    pub event SectionItemAdded(id: UInt64, sectionId: UInt64, productId: UInt64)
-    pub event SectionItemRemoved(id: UInt64, sectionId: UInt64)
+    access(all) event ProductAdded(id: UInt64)
+    access(all) event ProductRemoved(id: UInt64)
+    access(all) event ProductUpdated(id: UInt64)
+    access(all) event ProductVolumeForSaleDecremented(id: UInt64, newVolumeForSale: UInt64)
 
-    pub event ContractInitiliazed()
+    access(all) event SectionItemAdded(id: UInt64, sectionId: UInt64, productId: UInt64)
+    access(all) event SectionItemRemoved(id: UInt64, sectionId: UInt64)
 
-    pub let StoreManagerDataPath: StoragePath
+    access(all) event ContractInitiliazed()
+
+    access(all) let StoreManagerDataPath: StoragePath
 
     access(contract) var nextSectionItemId: UInt64
     access(contract) var nextSectionId: UInt64
 
-    pub struct Product {
-        pub let id: UInt64
-        pub let description: String
-        pub let level: FantastecSwapDataProperties.Level?
-        pub let numberOfOptionalNfts: UInt64
-        pub let numberOfPacks: UInt64
-        pub let numberOfRegularNfts: UInt64
-        pub let partner: FantastecSwapDataProperties.Partner?
-        pub let season: FantastecSwapDataProperties.Season?
-        pub let shortTitle: String
-        pub let sku: FantastecSwapDataProperties.Sku?
-        pub let sport: FantastecSwapDataProperties.Sport?
-        pub let team: FantastecSwapDataProperties.Team?
-        pub let themeType: String
-        pub let title: String
-        pub let releaseDate: UFix64
-        pub var volumeForSale: UInt64
-        pub let productImageUrl: String
-        pub let productVideoUrl: String
-        pub let backgroundImageSmallUrl: String
-        pub let backgroundImageLargeUrl: String
-        pub let featuredImageUrl: String
-        pub let featuredVideoUrl: String
-        pub var metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+    access(all) struct Product {
+        access(all) let id: UInt64
+        access(all) let description: String
+        access(all) let level: FantastecSwapDataProperties.Level?
+        access(all) let numberOfOptionalNfts: UInt64
+        access(all) let numberOfPacks: UInt64
+        access(all) let numberOfRegularNfts: UInt64
+        access(all) let partner: FantastecSwapDataProperties.Partner?
+        access(all) let season: FantastecSwapDataProperties.Season?
+        access(all) let shortTitle: String
+        access(all) let sku: FantastecSwapDataProperties.Sku?
+        access(all) let sport: FantastecSwapDataProperties.Sport?
+        access(all) let team: FantastecSwapDataProperties.Team?
+        access(all) let themeType: String
+        access(all) let title: String
+        access(all) let releaseDate: UFix64
+        access(all) var volumeForSale: UInt64
+        access(all) let productImageUrl: String
+        access(all) let productVideoUrl: String
+        access(all) let backgroundImageSmallUrl: String
+        access(all) let backgroundImageLargeUrl: String
+        access(all) let featuredImageUrl: String
+        access(all) let featuredVideoUrl: String
+        access(all) var metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
 
         init(
             id: UInt64,
@@ -68,7 +70,7 @@ pub contract StoreManagerV5 {
             backgroundImageLargeUrl: String,
             featuredImageUrl: String,
             featuredVideoUrl: String,
-            metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+            metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
         ){
             self.id = id
             self.description = description
@@ -104,11 +106,11 @@ pub contract StoreManagerV5 {
         }
     }
 
-    pub struct SectionItem {
-        pub let id: UInt64
-        pub let position: UInt64
-        pub var product: Product?
-        pub let productId: UInt64
+    access(all) struct SectionItem {
+        access(all) let id: UInt64
+        access(all) let position: UInt64
+        access(all) var product: Product?
+        access(all) let productId: UInt64
 
         init(id: UInt64, position: UInt64, productId: UInt64) {
             self.id = id
@@ -117,17 +119,17 @@ pub contract StoreManagerV5 {
             self.productId = productId
         }
 
-        pub fun addProduct(product: Product) {
+        access(Manage) fun addProduct(product: Product) {
             self.product = product
         }
     }
 
-    pub struct Section {
-        pub let id: UInt64
-        pub let sectionItems: {UInt64: SectionItem}
-        pub let position: UInt64
-        pub let title: String
-        pub let type: String
+    access(all) struct Section {
+        access(all) let id: UInt64
+        access(all) let sectionItems: {UInt64: SectionItem}
+        access(all) let position: UInt64
+        access(all) let title: String
+        access(all) let type: String
 
         init(id: UInt64, position: UInt64, title: String, type: String) {
             self.id = id
@@ -137,7 +139,7 @@ pub contract StoreManagerV5 {
             self.type = type
         }
 
-        pub fun addSectionItem(position: UInt64, productId: UInt64): SectionItem {
+        access(Manage) fun addSectionItem(position: UInt64, productId: UInt64): SectionItem {
             let id = StoreManagerV5.nextSectionItemId
 
             let sectionItem = SectionItem(id: id, position: position, productId: productId)
@@ -148,7 +150,7 @@ pub contract StoreManagerV5 {
             return sectionItem
         }
 
-        pub fun addProductToSectionItem(sectionItemId: UInt64, product: Product): SectionItem? {
+        access(Manage) fun addProductToSectionItem(sectionItemId: UInt64, product: Product): SectionItem? {
             if let sectionItem = self.sectionItems[sectionItemId] {
                 sectionItem.addProduct(product: product)
                 self.sectionItems[sectionItemId] = sectionItem
@@ -157,7 +159,7 @@ pub contract StoreManagerV5 {
             return nil
         }
 
-        pub fun removeSectionItem(id: UInt64): SectionItem? {
+        access(Manage) fun removeSectionItem(id: UInt64): SectionItem? {
             return self.sectionItems.remove(key: id)
         }
     }
@@ -165,27 +167,27 @@ pub contract StoreManagerV5 {
     //-------------------------
     // Contract level functions
     //-------------------------
-    pub fun getStore(): {UInt64: Section} {
+    access(all) fun getStore(): {UInt64: Section} {
         return self.getDataManager().getStore()
     }
 
-    pub fun getProduct(productId: UInt64): Product? {
+    access(all) fun getProduct(productId: UInt64): Product? {
         return self.getDataManager().getProduct(productId: productId)
     }
 
-    pub fun getProducts(productIds: [UInt64]): [Product] {
+    access(all) fun getProducts(productIds: [UInt64]): [Product] {
         return self.getDataManager().getProducts(productIds: productIds)
     }
 
-    pub fun getAllProducts(): {UInt64: Product} {
+    access(all) fun getAllProducts(): {UInt64: Product} {
         return self.getDataManager().getAllProducts()
     }
 
-    pub resource DataManager {
+    access(all) resource DataManager {
         access(contract) let products: {UInt64: Product}
         access(contract) let store: {UInt64: Section}
 
-        pub fun getStore(): {UInt64: Section} {
+        access(all) fun getStore(): {UInt64: Section} {
             let products = self.products
             let store = self.store
             let currentBlock = getCurrentBlock()
@@ -213,7 +215,7 @@ pub contract StoreManagerV5 {
             return store
         }
 
-        pub fun addProduct(
+        access(Manage) fun addProduct(
             id: UInt64,
             description: String,
             level: FantastecSwapDataProperties.Level?,
@@ -236,7 +238,7 @@ pub contract StoreManagerV5 {
             backgroundImageLargeUrl: String,
             featuredImageUrl: String,
             featuredVideoUrl: String,
-            metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+            metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
         ) {
             let product = Product(
                 id: id,
@@ -267,18 +269,18 @@ pub contract StoreManagerV5 {
             emit ProductAdded(id: product.id)
         }
 
-        pub fun decrementProductVolumeForSale(productId: UInt64) {
+        access(Manage) fun decrementProductVolumeForSale(productId: UInt64) {
             let newVolumeForSale = self.products[productId]?.decrementProductVolumeForSale()
             if (newVolumeForSale != nil) {
                 emit ProductVolumeForSaleDecremented(id: productId, newVolumeForSale: newVolumeForSale!)
             }
         }
 
-        pub fun getProduct(productId: UInt64): Product? {
+        access(all) fun getProduct(productId: UInt64): Product? {
             return self.products[productId]
         }
 
-        pub fun getProducts(productIds: [UInt64]): [Product] {
+        access(all) fun getProducts(productIds: [UInt64]): [Product] {
             let products: [Product] = []
             for productId in productIds {
                 let product = self.getProduct(productId: productId)
@@ -289,11 +291,11 @@ pub contract StoreManagerV5 {
             return products
         }
 
-        pub fun getAllProducts(): {UInt64: Product} {
+        access(all) fun getAllProducts(): {UInt64: Product} {
             return self.products
         }
 
-        pub fun removeProduct(productId: UInt64) {
+        access(Manage) fun removeProduct(productId: UInt64) {
             let store = self.store
             let sectionItemsToRemove: {UInt64: UInt64} = {}
             store.forEachKey(fun (sectionId: UInt64): Bool {
@@ -327,7 +329,7 @@ pub contract StoreManagerV5 {
             emit ProductUpdated(id: productId)
         }
 
-        pub fun addSection(position: UInt64, title: String, type: String): UInt64 {
+        access(Manage) fun addSection(position: UInt64, title: String, type: String): UInt64 {
             let id = StoreManagerV5.nextSectionId
             let section = Section(id: id, position: position, title: title, type: type)
 
@@ -339,16 +341,16 @@ pub contract StoreManagerV5 {
             return id
         }
 
-        pub fun getSection(sectionId: UInt64): Section? {
+        access(all) fun getSection(sectionId: UInt64): Section? {
             return self.store[sectionId]
         }
 
-        pub fun removeSection(sectionId: UInt64) {
+        access(Manage) fun removeSection(sectionId: UInt64) {
             self.store.remove(key: sectionId)
             emit SectionRemoved(id: sectionId)
         }
 
-        pub fun addSectionItemToSection(sectionId: UInt64, position: UInt64, productId: UInt64): UInt64 {
+        access(Manage) fun addSectionItemToSection(sectionId: UInt64, position: UInt64, productId: UInt64): UInt64 {
             let sectionItem = self.store[sectionId]?.addSectionItem(position: position, productId: productId)
             sectionItem ?? panic("no section found with ID ".concat(sectionId.toString()))
             emit SectionItemAdded(id: sectionItem!.id, sectionId: sectionId, productId: productId)
@@ -356,7 +358,7 @@ pub contract StoreManagerV5 {
             return sectionItem!.id
         }
 
-        pub fun removeSectionItemFromSection(sectionId: UInt64, sectionItemId: UInt64) {
+        access(Manage) fun removeSectionItemFromSection(sectionId: UInt64, sectionItemId: UInt64) {
             let sectionItem = self.store[sectionId]?.removeSectionItem(id: sectionItemId)
             sectionItem ?? panic("no section found with ID ".concat(sectionId.toString()))
             emit SectionItemRemoved(id: sectionItemId, sectionId: sectionId)
@@ -368,101 +370,16 @@ pub contract StoreManagerV5 {
         }
     }
 
-    /* Below are Data Migration functions */
-
-    // pub fun migrateDataProducts(_ page: UInt64, _ size: UInt64) {
-
-    //     // get this contract's DM
-    //     var dataManagerV5: &StoreManagerV5.DataManager = self.getDataManager()
-
-    //     // or add the DM if it doesn't exist
-    //     if dataManagerV5 == nil {
-    //         log("No DataManagerV5 found, creating a new one")
-
-    //         // create the DM and save it
-    //         let newProducts: {UInt64: Product} = {}
-    //         let newSections: {UInt64: Section} = {}
-    //         self.account.save<@StoreManagerV5.DataManager>(<- create DataManager(newProducts, newSections), to: self.StoreManagerDataPath)
-            
-    //         // get this contract's DM
-    //         dataManagerV5 = self.getDataManager()
-    //     } else {
-    //         log("Existing DataManagerV5 borrowed")
-    //     }
-        
-    //     // migrate V3 to V5
-    //     var oldProducts = StoreManagerV3.getAllProducts()
-
-    //     var newProducts: {UInt64: Product} = {}
-
-    //     var min = page * size
-    //     var max = min + size
-
-    //     for index, product in oldProducts.values {
-    //         if UInt64(index) < min {
-    //             continue
-    //         }
-    //         if UInt64(index) > max {
-    //             break
-    //         }
-    //         dataManagerV5.addProduct(
-    //             id: product.id,
-    //             description: product.description,
-    //             level: product.level,
-    //             numberOfOptionalNfts: product.numberOfOptionalNfts,
-    //             numberOfPacks: product.numberOfPacks,
-    //             numberOfRegularNfts: product.numberOfRegularNfts,
-    //             partner: product.partner,
-    //             season: product.season,
-    //             shortTitle: product.shortTitle,
-    //             sku: product.sku,
-    //             sport: product.sport,
-    //             team: product.team,
-    //             themeType: product.themeType,
-    //             title: product.title,
-    //             releaseDate: product.releaseDate,
-    //             volumeForSale: product.volumeForSale,
-    //             productImageUrl: product.productImageUrl,
-    //             productVideoUrl: product.productVideoUrl,
-    //             backgroundImageSmallUrl: product.backgroundImageSmallUrl,
-    //             backgroundImageLargeUrl: product.backgroundImageLargeUrl,
-    //             featuredImageUrl: product.featuredImageUrl,
-    //             featuredVideoUrl: product.featuredVideoUrl,
-    //             metadata: {}
-    //         )
-    //     }
-    // }
-
-    // pub fun migrateDataSections() {
-    //     // get dataManager
-    //     var dataManagerV5: &StoreManagerV5.DataManager = self.getDataManager()        
-    //     var oldSections = StoreManagerV3.getStore()
-
-    //     // migrate V3 to V5
-    //     for oldSection in oldSections.values {
-    //         let newSectionId = dataManagerV5.addSection(position: oldSection.position, title: oldSection.title, type: oldSection.type)
-    //         for sectionItem in oldSection.sectionItems.values {
-    //             dataManagerV5.addSectionItemToSection(sectionId: newSectionId, position: sectionItem.position, productId: sectionItem.productId)
-    //         }
-    //     }
-    // }
-
-    // pub fun removeDataManager() {
-    //     let oldDataManager <- self.account.load<@DataManager>(from: self.StoreManagerDataPath)
-    //     destroy oldDataManager
-    // }
-
-    // pub fun setDataManager() { // needs to be made public to permit access to dataManager during migrations
     access(contract) fun setDataManager() {
-        let oldDataManager <- self.account.load<@DataManager>(from: self.StoreManagerDataPath)
+        let oldDataManager <- self.account.storage.load<@DataManager>(from: self.StoreManagerDataPath)
         var oldProducts = oldDataManager?.products ?? {}
         var oldStore = oldDataManager?.store ?? {}
-        self.account.save<@DataManager>(<- create DataManager(oldProducts, oldStore), to: self.StoreManagerDataPath)
+        self.account.storage.save<@DataManager>(<- create DataManager(oldProducts, oldStore), to: self.StoreManagerDataPath)
         destroy oldDataManager
     }
 
     access(contract) fun getDataManager(): &DataManager {
-        return self.account.borrow<&DataManager>(from: self.StoreManagerDataPath)!
+        return self.account.storage.borrow<&DataManager>(from: self.StoreManagerDataPath)!
     }
 
     init() {

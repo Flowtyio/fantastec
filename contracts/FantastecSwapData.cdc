@@ -10,22 +10,24 @@ Cards represent an individual item or moment of interest - a digital card of a p
 An NFT will be minted against individual Card.
 */
 
-pub contract FantastecSwapData {
+access(all) contract FantastecSwapData {
+
+  access(all) entitlement Owner
 
   /** EVENTS **/
   // Contract Events
-  pub event ContractInitialized()
+  access(all) event ContractInitialized()
 
   // Card Events
-  pub event CardCreated(item: FantastecSwapData.CardData)
-  pub event CardUpdated(item: FantastecSwapData.CardData)
-  pub event CardDeactivated(id: UInt64)
-  pub event AddedEditionMintVolume(item: FantastecSwapData.CardData)
+  access(all) event CardCreated(item: FantastecSwapData.CardData)
+  access(all) event CardUpdated(item: FantastecSwapData.CardData)
+  access(all) event CardDeactivated(id: UInt64)
+  access(all) event AddedEditionMintVolume(item: FantastecSwapData.CardData)
 
   // CardCollection Events
-  pub event CardCollectionCreated(item: FantastecSwapData.CardCollectionData)
-  pub event CardCollectionUpdated(item: FantastecSwapData.CardCollectionData)
-  pub event CardCollectionDeactivated(id: UInt64)
+  access(all) event CardCollectionCreated(item: FantastecSwapData.CardCollectionData)
+  access(all) event CardCollectionUpdated(item: FantastecSwapData.CardCollectionData)
+  access(all) event CardCollectionDeactivated(id: UInt64)
 
   /** CONTRACT LEVEL PROPERTIES **/
   access(self) var cardCollectionData: {UInt64: CardCollectionData}
@@ -35,11 +37,11 @@ pub contract FantastecSwapData {
   access(self) var defaultRoyaltyAddress: Address
 
   /** CONTRACT LEVEL RESOURCES */
-  pub let AdminStoragePath: StoragePath
+  access(all) let AdminStoragePath: StoragePath
 
-  pub struct Royalty {
-    pub let address: Address;
-    pub let percentage: UFix64;
+  access(all) struct Royalty {
+    access(all) let address: Address;
+    access(all) let percentage: UFix64;
     init(
       _ address: Address,
       _ percentage: UFix64,
@@ -53,15 +55,15 @@ pub contract FantastecSwapData {
   }
 
   /** CONTRACT LEVEL STRUCTS */
-  pub struct CardCollectionData {
-    pub var id: UInt64
-    pub var appId: String
-    pub var title: String
-    pub var description: String
-    pub var level: String
-    pub var metadata: {String: String}
-    pub var marketplaceFee: UFix64
-    pub var royalties : [Royalty]
+  access(all) struct CardCollectionData {
+    access(all) var id: UInt64
+    access(all) var appId: String
+    access(all) var title: String
+    access(all) var description: String
+    access(all) var level: String
+    access(all) var metadata: {String: String}
+    access(all) var marketplaceFee: UFix64
+    access(all) var royalties : [Royalty]
 
     // when isDeactivated is true the collection is considered soft deleted
     // eg if a mistake was made on the collection isDeactivated will signify
@@ -69,7 +71,7 @@ pub contract FantastecSwapData {
     // * Collection marked as {isDeactivated:true} and cannot be accessed through "getAll"-like functions
     // * but can be referenced through "getById"-like function
     // * no actions can be performed on the collection nor it’s cards
-    pub var isDeactivated: Bool
+    access(all) var isDeactivated: Bool
 
     access(contract) fun deactivate(){
       self.isDeactivated = true
@@ -121,14 +123,14 @@ pub contract FantastecSwapData {
     }
   }
 
-  pub struct CardData {
-    pub var id: UInt64                  // a unique sequential number
-    pub var name: String                // Card name
-    pub var level: String               // Level, one of 15 different levels
-    pub var cardType: String            // Currently either [Player, Lineup]??
-    pub var aspectRatio: String         // ??
-    pub var metadata: {String: String}  // a data structure determined by cardType
-    pub var cardCollectionId: UInt64    // The id of the collection to which this card belongs
+  access(all) struct CardData {
+    access(all) var id: UInt64                  // a unique sequential number
+    access(all) var name: String                // Card name
+    access(all) var level: String               // Level, one of 15 different levels
+    access(all) var cardType: String            // Currently either [Player, Lineup]??
+    access(all) var aspectRatio: String         // ??
+    access(all) var metadata: {String: String}  // a data structure determined by cardType
+    access(all) var cardCollectionId: UInt64    // The id of the collection to which this card belongs
 
     // when isDeactivated is true the card is considered soft deleted
     // eg if a mistake was made on the card isDeactivated will signify
@@ -136,7 +138,7 @@ pub contract FantastecSwapData {
     // * Card is marked as {isDeactivated:true} and cannot be accessed through "getAll"-like functions
     // * but can be referenced through "getById"-like function
     // * no actions can be performed on the card
-    pub var isDeactivated: Bool
+    access(all) var isDeactivated: Bool
 
     // The maxmimum number of NFTs that can be minted per edition.
     // Admin may add a new entry to editionMintVolume, but not change any entries already present.
@@ -144,16 +146,16 @@ pub contract FantastecSwapData {
     // For example, {1:70} means 1st edition, max 70 cards mintable.
     // As soon as a later edition is added to the object, any previous editions are locked from minting
     // TODO: function to implement this
-    pub var editionMintVolume: {UInt64: UInt64}
+    access(all) var editionMintVolume: {UInt64: UInt64}
     
     // Present number of NFTs minting by edition
-    pub var editionTotalSupply: {UInt64: UInt64}
+    access(all) var editionTotalSupply: {UInt64: UInt64}
 
     // determine if an edition has ceased being minted, meaning all unminted numbers have been "burnt",
     // increasing the scarcity for all minted cards
-    pub var editionHasCeased: {UInt64: Bool}
+    access(all) var editionHasCeased: {UInt64: Bool}
 
-    pub var editionNextMintNumber: {UInt64: UInt64}
+    access(all) var editionNextMintNumber: {UInt64: UInt64}
 
     init(
       name: String, 
@@ -248,25 +250,25 @@ pub contract FantastecSwapData {
     access(contract) fun bumpEditionNextMintNumber(_ edition: UInt64){
       self.editionNextMintNumber[edition] = self.editionNextMintNumber[edition]! + (1 as UInt64)
     }
-    pub fun hasEditionBeenExhausted(_ edition: UInt64): Bool{
+    access(all) fun hasEditionBeenExhausted(_ edition: UInt64): Bool{
       if (self.editionTotalSupply[edition]! >= self.editionMintVolume[edition]!) {
         return true
       }
       return false
     }
-    pub fun isEditionCurrent(_ edition: UInt64): Bool {
+    access(all) fun isEditionCurrent(_ edition: UInt64): Bool {
       if (self.editionMintVolume.keys[self.editionMintVolume.length-1] == edition) {
         return true
       }
       return false
     }
-    pub fun hasEditionCeased(_ edition: UInt64): Bool {
+    access(all) fun hasEditionCeased(_ edition: UInt64): Bool {
       if (self.editionHasCeased[edition] == true) {
         return true
       }
       return false
     }
-    pub fun isMintable(edition: UInt64): String {
+    access(all) fun isMintable(edition: UInt64): String {
       if (self.isDeactivated) { return "Card deactivated" }
       if (!self.isEditionCurrent(edition)) { return "not the current edition" }
       if (self.hasEditionBeenExhausted(edition)) { return "edition is exhausted" }
@@ -275,16 +277,16 @@ pub contract FantastecSwapData {
     }
   }
 
-  pub resource Admin {
-    pub fun setDefaultRoyaltiesAccount(_ address: Address){
+  access(all) resource Admin {
+    access(Owner) fun setDefaultRoyaltiesAccount(_ address: Address){
       FantastecSwapData.defaultRoyaltyAddress = address;
     }
-    pub fun getDefaultRoyaltiesAccount(): Address {
+    access(Owner) fun getDefaultRoyaltiesAccount(): Address {
       return FantastecSwapData.defaultRoyaltyAddress;
     }
 
     // Manage CardCollection functions
-    pub fun addCardCollection(
+    access(Owner) fun addCardCollection(
       appId: String, 
       title: String, 
       description: String, 
@@ -309,7 +311,7 @@ pub contract FantastecSwapData {
 
       return newCardCollection
     }
-    pub fun updateCardCollectionById(
+    access(Owner) fun updateCardCollectionById(
       appId: String, 
       title: String, 
       description: String, 
@@ -344,7 +346,7 @@ pub contract FantastecSwapData {
       emit CardCollectionUpdated(item: newCardCollection)
       return newCardCollection
     }
-    pub fun deactivateCardCollectionById(id: UInt64): Bool {
+    access(Owner) fun deactivateCardCollectionById(id: UInt64): Bool {
       // ensure the collection exists
       let cardCollection: CardCollectionData = FantastecSwapData.getCardCollectionById(id: id)
         ?? panic("No CardCollection found with id: ".concat(id.toString()))
@@ -367,7 +369,7 @@ pub contract FantastecSwapData {
     }
 
     // Manage Card functions
-    pub fun addCard(
+    access(Owner) fun addCard(
       name: String, 
       level: String, 
       cardType: String, 
@@ -392,7 +394,7 @@ pub contract FantastecSwapData {
 
       return newCard
     }
-    pub fun updateCardById(
+    access(Owner) fun updateCardById(
       name: String, 
       level: String, 
       cardType: String, 
@@ -426,7 +428,7 @@ pub contract FantastecSwapData {
 
       return updatedCard
     }
-    pub fun deactivateCardById(id: UInt64): Bool {
+    access(Owner) fun deactivateCardById(id: UInt64): Bool {
       pre {
         FantastecSwapData.cardData[id] != nil: "No card found with id: ".concat(id.toString())
       }
@@ -441,7 +443,7 @@ pub contract FantastecSwapData {
       emit CardDeactivated(id: id)
       return card.isDeactivated
     }
-    pub fun addEditionMintVolume(cardId: UInt64, edition: UInt64, mintVolume: UInt64): Bool {
+    access(Owner) fun addEditionMintVolume(cardId: UInt64, edition: UInt64, mintVolume: UInt64): Bool {
       pre {
         FantastecSwapData.cardData[cardId] != nil: "No card found with id: ".concat(cardId.toString())
         mintVolume > 0: "Mint volume must be greater than 0"
@@ -457,12 +459,12 @@ pub contract FantastecSwapData {
 
       return true
     }
-    pub fun bumpEditionTotalSupply(cardId: UInt64, edition: UInt64, quantity: UInt64) {
+    access(Owner) fun bumpEditionTotalSupply(cardId: UInt64, edition: UInt64, quantity: UInt64) {
       let card: FantastecSwapData.CardData = FantastecSwapData.cardData[cardId] ?? panic("Unknown edition: ".concat(cardId.toString()))
       card.bumpEditionTotalSupply(edition, quantity: quantity)
       card.save()
     }
-    pub fun bumpEditionNextMintNumber(cardId: UInt64, edition: UInt64): UInt64 {
+    access(Owner) fun bumpEditionNextMintNumber(cardId: UInt64, edition: UInt64): UInt64 {
       let card: FantastecSwapData.CardData = FantastecSwapData.cardData[cardId] ?? panic("Unknown edition: ".concat(cardId.toString()))
       card.bumpEditionNextMintNumber(edition)
       card.save()
@@ -472,7 +474,7 @@ pub contract FantastecSwapData {
 
   /** PUBLIC GETTING FUNCTIONS */
   // CardCollection functions
-  pub fun getAllCardCollections():[FantastecSwapData.CardCollectionData]{
+  access(all) fun getAllCardCollections():[FantastecSwapData.CardCollectionData]{
     var cardCollections:[FantastecSwapData.CardCollectionData] = []
     for cardCollection in self.cardCollectionData.values {
       if (!cardCollection.isDeactivated){
@@ -482,15 +484,15 @@ pub contract FantastecSwapData {
     return cardCollections;
   }
 
-  pub fun getCardCollectionById(id: UInt64): FantastecSwapData.CardCollectionData? {
+  access(all) fun getCardCollectionById(id: UInt64): FantastecSwapData.CardCollectionData? {
     return FantastecSwapData.cardCollectionData[id]
   }
 
-  pub fun getCardColletionMarketFee(id: UInt64): UFix64 {
+  access(all) fun getCardColletionMarketFee(id: UInt64): UFix64 {
     return FantastecSwapData.cardCollectionData[id]!.marketplaceFee
   }
 
-  pub fun getCardCollectionIds(): [UInt64] {
+  access(all) fun getCardCollectionIds(): [UInt64] {
     var keys:[UInt64] = []
     for collection in self.cardCollectionData.values {
       if (!collection.isDeactivated){
@@ -501,7 +503,7 @@ pub contract FantastecSwapData {
   }
 
   // Card functions
-  pub fun getAllCards():[FantastecSwapData.CardData]{
+  access(all) fun getAllCards():[FantastecSwapData.CardData]{
     var cards:[FantastecSwapData.CardData] = []
     for card in self.cardData.values {
       if (!card.isDeactivated){
@@ -511,11 +513,11 @@ pub contract FantastecSwapData {
     return cards;
   }
 
-  pub fun getCardById(id: UInt64): FantastecSwapData.CardData? {
+  access(all) view fun getCardById(id: UInt64): FantastecSwapData.CardData? {
     return FantastecSwapData.cardData[id]
   }
 
-  pub fun getCardIds(): [UInt64] {
+  access(all) fun getCardIds(): [UInt64] {
     var keys:[UInt64] = []
     for card in self.cardData.values {
       if (!card.isDeactivated){
@@ -525,7 +527,7 @@ pub contract FantastecSwapData {
     return keys;
   }
 
-  pub fun isMintable(cardId: UInt64, edition: UInt64): String {
+  access(all) fun isMintable(cardId: UInt64, edition: UInt64): String {
     let card = self.getCardById(id: cardId) ?? nil
     if (card == nil){
       return FantastecSwapData.join(["No Card with cardId=", cardId.toString()], "")
@@ -537,22 +539,12 @@ pub contract FantastecSwapData {
     return "yes"
   }
 
-  pub fun join(_ array: [String], _ separator: String): String {
+  access(all) fun join(_ array: [String], _ separator: String): String {
     var res = ""
     for string in array {
       res = res.concat(" ").concat(string)
     }
     return res
-  }
-
-  // need to protect this so that only the account holder can execute this function
-  // A "best practice" recommendationfrom Dapper was to store the Admin resources separate from contracts
-  // TODO: get assistance from Dapper on implementing this as there's probably use cases we're not yet aware of that need to be handled
-  pub fun setAdmin(){
-    // -- !!CAREFUL - FOLLOWING WILL DELETE ALL EXISTING CARDS/CARD COLLECTIONS WHEN CONTRACT REDEPLOYED!!
-    let oldAdmin <- self.account.load<@Admin>(from: self.AdminStoragePath)
-    self.account.save<@Admin>(<- create Admin(), to: self.AdminStoragePath)
-    destroy oldAdmin
   }
 
   init() {
@@ -564,7 +556,7 @@ pub contract FantastecSwapData {
 
     // set storage paths and Admin resource
     self.AdminStoragePath = /storage/FantastecSwapAdmin
-    self.setAdmin()
+    self.account.storage.save<@Admin>(<- create Admin(), to: self.AdminStoragePath)
 
     emit ContractInitialized()
   }

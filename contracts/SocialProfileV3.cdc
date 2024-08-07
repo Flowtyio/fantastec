@@ -20,42 +20,44 @@ TODO
 
 import "FantastecSwapDataProperties"
 
-pub contract SocialProfileV3 {
+access(all) contract SocialProfileV3 {
 
-    pub event PostCreated           (owner: Address, postId: UInt64)
-    pub event PostDestroyed         (owner: Address, postId: UInt64)
-    pub event NewsFeedPostCreated   (owner: Address, postId: UInt64)
-    pub event PostLiked             (owner: Address, postId: UInt64, liker: Address)
-    pub event PostUnliked           (owner: Address, postId: UInt64, liker: Address)
-    pub event CommentCreated        (owner: Address, postId: UInt64, commenter: Address, commentId: UInt64)
-    pub event CommentDestroyed      (owner: Address, postId: UInt64, commenter: Address, commentId: UInt64)
-    pub event CommentLiked          (owner: Address, postId: UInt64, commentId: UInt64, liker: Address)
-    pub event CommentUnliked        (owner: Address, postId: UInt64, commentId: UInt64, liker: Address)
+    access(all) entitlement Poster
 
-    pub event ProfileFollowed       (owner: Address, follower: Address)
-    pub event ProfileUnfollowed     (owner: Address, follower: Address)
-    pub event ProfileUpdated        (owner: Address, field: String)
+    access(all) event PostCreated           (owner: Address, postId: UInt64)
+    access(all) event PostDestroyed         (owner: Address, postId: UInt64)
+    access(all) event NewsFeedPostCreated   (owner: Address, postId: UInt64)
+    access(all) event PostLiked             (owner: Address, postId: UInt64, liker: Address)
+    access(all) event PostUnliked           (owner: Address, postId: UInt64, liker: Address)
+    access(all) event CommentCreated        (owner: Address, postId: UInt64, commenter: Address, commentId: UInt64)
+    access(all) event CommentDestroyed      (owner: Address, postId: UInt64, commenter: Address, commentId: UInt64)
+    access(all) event CommentLiked          (owner: Address, postId: UInt64, commentId: UInt64, liker: Address)
+    access(all) event CommentUnliked        (owner: Address, postId: UInt64, commentId: UInt64, liker: Address)
 
-    pub event Installed             (owner: Address)
-    pub event Destroyed             (owner: Address)
+    access(all) event ProfileFollowed       (owner: Address, follower: Address)
+    access(all) event ProfileUnfollowed     (owner: Address, follower: Address)
+    access(all) event ProfileUpdated        (owner: Address, field: String)
 
-    pub let SocialProfileStoragePath: StoragePath
-    pub let SocialProfilePublicPath: PublicPath
+    access(all) event Installed             (owner: Address)
+    access(all) event Destroyed             (owner: Address)
+
+    access(all) let SocialProfileStoragePath: StoragePath
+    access(all) let SocialProfilePublicPath:  PublicPath
 
 //    access(contract) let maxCommentsPerPost: UInt64
 //    access(contract) let maxPostsPerProfile: UInt64
 //    access(contract) let maxFollowingPerProfile: UInt64
     access(contract) var nextCommentId: UInt64
 
-    pub struct PostDetails {
-        pub let id: UInt64
-        pub let author: Address // If we don't add author here, can it be inferred in some way on chain? perhaps by event history?
-        pub let content: String
-        pub let image: FantastecSwapDataProperties.Media?
-        pub let dateCreated: UFix64
-        pub let likeCount: UInt
-        pub let comments: {UInt64: Comment}
-        pub var metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+    access(all) struct PostDetails {
+        access(all) let id: UInt64
+        access(all) let author: Address // If we don't add author here, can it be inferred in some way on chain? perhaps by event history?
+        access(all) let content: String
+        access(all) let image: FantastecSwapDataProperties.Media?
+        access(all) let dateCreated: UFix64
+        access(all) let likeCount: UInt
+        access(all) let comments: {UInt64: Comment}
+        access(all) var metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
         // consider mirroring the minimal post and have the rest of the properties in metadata
         init(
             id: UInt64, 
@@ -65,7 +67,7 @@ pub contract SocialProfileV3 {
             dateCreated: UFix64,
             likeCount: UInt,
             comments: {UInt64: Comment},
-            metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+            metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
             ) {
             self.id = id
             self.author = author
@@ -78,13 +80,13 @@ pub contract SocialProfileV3 {
         }
     }
 
-    pub struct Comment {
-        pub let id: UInt64
-        pub let author: Address
-        pub let content: String
-        pub let dateCreated: UFix64
-        pub var likeCount: Int
-        pub var metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+    access(all) struct Comment {
+        access(all) let id: UInt64
+        access(all) let author: Address
+        access(all) let content: String
+        access(all) let dateCreated: UFix64
+        access(all) var likeCount: Int
+        access(all) var metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
 
         init(id: UInt64, author: Address, content: String) {
             let dateCreated = getCurrentBlock().timestamp
@@ -108,15 +110,15 @@ pub contract SocialProfileV3 {
         }
     }
 
-    pub struct Profile {
-        pub let avatar: String
-        pub let username: String
-        pub let name: String
-        pub let bio: String
-        pub let coverMedia: FantastecSwapDataProperties.Media?
-        pub let following: {Address: Bool}
-        pub let followers : Int
-        pub var metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+    access(all) struct Profile {
+        access(all) let avatar: String
+        access(all) let username: String
+        access(all) let name: String
+        access(all) let bio: String
+        access(all) let coverMedia: FantastecSwapDataProperties.Media?
+        access(all) let following: {Address: Bool}
+        access(all) let followers : Int
+        access(all) var metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
         init(
             avatar: String, 
             bio: String, 
@@ -125,7 +127,7 @@ pub contract SocialProfileV3 {
             coverMedia: FantastecSwapDataProperties.Media?, 
             following: {Address: Bool}, 
             followers: Int,
-            metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+            metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
         ) {
             self.avatar = avatar
             self.bio = bio
@@ -138,15 +140,15 @@ pub contract SocialProfileV3 {
         }
     }
 
-    pub resource Post {
-        pub let id: UInt64
-        pub let author: Address
-        pub let content: String
-        pub let image: FantastecSwapDataProperties.Media?
-        pub let dateCreated: UFix64
-        pub var likeCount: Int // should this be access(contract)? Can someone else change this value?
-        pub let comments: {UInt64: Comment}
-        pub var metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]} // should this be access(contract)? Can someone else change this value?
+    access(all) resource Post {
+        access(all) let id: UInt64
+        access(all) let author: Address
+        access(all) let content: String
+        access(all) let image: FantastecSwapDataProperties.Media?
+        access(all) let dateCreated: UFix64
+        access(all) var likeCount: Int // should this be access(contract)? Can someone else change this value?
+        access(all) let comments: {UInt64: Comment}
+        access(all) var metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]} // should this be access(contract)? Can someone else change this value?
 
         init(content: String, author: Address, image: FantastecSwapDataProperties.Media?) {
             self.id = self.uuid
@@ -203,7 +205,7 @@ pub contract SocialProfileV3 {
         /* Metadata */
         access(contract) fun addMetadata(
         _ type: String,
-        _ metadata: AnyStruct{FantastecSwapDataProperties.MetadataElement},
+        _ metadata: {FantastecSwapDataProperties.MetadataElement},
         ) {
             if (self.metadata[type] == nil) {
                 self.metadata[type] = []
@@ -222,44 +224,44 @@ pub contract SocialProfileV3 {
         }        
     }
 
-    pub resource interface SocialProfilePublic {
-        pub fun borrowPost(_ id: UInt64): &Post?
-        pub fun getPostIds(): [UInt64]
-        pub fun getLikedPosts(): [UInt64]
-        pub fun getAvatar(): String
-        pub fun getBio(): String
-        pub fun getCoverMedia(): FantastecSwapDataProperties.Media?
-        pub fun getUsername(): String
-        pub fun getName(): String
-        pub fun getFollowing(): {Address:Bool}
-        pub fun getFollowersCount(): Int
-        pub fun getMetadata(): {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]} // pub let metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+    access(all) resource interface SocialProfilePublic {
+        access(all) fun borrowPost(_ id: UInt64): &Post?
+        access(all) fun getPostIds(): [UInt64]
+        access(all) fun getLikedPosts(): [UInt64]
+        access(all) fun getAvatar(): String
+        access(all) fun getBio(): String
+        access(all) fun getCoverMedia(): FantastecSwapDataProperties.Media?
+        access(all) fun getUsername(): String
+        access(all) fun getName(): String
+        access(all) fun getFollowing(): {Address:Bool}
+        access(all) fun getFollowersCount(): Int
+        access(all) fun getMetadata(): {String: [{FantastecSwapDataProperties.MetadataElement}]} // pub let metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
         access(contract) fun incrementFollower() // care to explain why it's like this? by access(contract) in public interface?
         access(contract) fun decrementFollower() // this permits another SP to call someone else's SP, but (contract) permits only the contract to call it
     }
 
-    pub resource interface SocialProfilePrivate {
-        pub fun addMetadata(_ type: String, _ metadata: AnyStruct{FantastecSwapDataProperties.MetadataElement})
-        pub fun createComment(theirAddress: Address, postId: UInt64, content: String)
-        pub fun createPost(content: String, image: FantastecSwapDataProperties.Media?)
-        pub fun createNewsFeedPost(content: String, title: String, publishedDate: UFix64, image: FantastecSwapDataProperties.Media?, buttonUrl: String, buttonText: String)
-        pub fun deleteComment(theirAddress: Address, postId: UInt64, commentId: UInt64)
-        pub fun follow(theirAddress: Address)
-        pub fun likeComment(theirAddress: Address, postId: UInt64, commentId: UInt64)
-        pub fun likePost(theirAddress: Address, id: UInt64)
-        pub fun removeMetadata(_ type: String, _ id: UInt64?)
-        pub fun removePost(_ id: UInt64)
-        pub fun setAvatar(avatar: String)
-        pub fun setBio(bio: String)
-        pub fun setName(name: String)
-        pub fun setUsername(username: String)
-        pub fun setCoverMedia(media: FantastecSwapDataProperties.Media?)
-        pub fun unfollow(theirAddress: Address)
-        pub fun unlikeComment(theirAddress: Address, postId: UInt64, commentId: UInt64)
-        pub fun unlikePost(theirAddress: Address, id: UInt64)
+    access(all) resource interface SocialProfilePrivate {
+        access(Poster) fun addMetadata(_ type: String, _ metadata: {FantastecSwapDataProperties.MetadataElement})
+        access(Poster) fun createComment(theirAddress: Address, postId: UInt64, content: String)
+        access(Poster) fun createPost(content: String, image: FantastecSwapDataProperties.Media?)
+        access(Poster) fun createNewsFeedPost(content: String, title: String, publishedDate: UFix64, image: FantastecSwapDataProperties.Media?, buttonUrl: String, buttonText: String)
+        access(Poster) fun deleteComment(theirAddress: Address, postId: UInt64, commentId: UInt64)
+        access(Poster) fun follow(theirAddress: Address)
+        access(Poster) fun likeComment(theirAddress: Address, postId: UInt64, commentId: UInt64)
+        access(Poster) fun likePost(theirAddress: Address, id: UInt64)
+        access(Poster) fun removeMetadata(_ type: String, _ id: UInt64?)
+        access(Poster) fun removePost(_ id: UInt64)
+        access(Poster) fun setAvatar(avatar: String)
+        access(Poster) fun setBio(bio: String)
+        access(Poster) fun setName(name: String)
+        access(Poster) fun setUsername(username: String)
+        access(Poster) fun setCoverMedia(media: FantastecSwapDataProperties.Media?)
+        access(Poster) fun unfollow(theirAddress: Address)
+        access(Poster) fun unlikeComment(theirAddress: Address, postId: UInt64, commentId: UInt64)
+        access(Poster) fun unlikePost(theirAddress: Address, id: UInt64)
     }
 
-    pub resource SocialProfile: SocialProfilePrivate, SocialProfilePublic {
+    access(all) resource SocialProfile: SocialProfilePrivate, SocialProfilePublic {
         access(self) var posts: @{UInt64: Post}
         access(self) var likedPosts: {UInt64:Bool}
         access(self) var likedComments: {UInt64: Bool}
@@ -270,25 +272,25 @@ pub contract SocialProfileV3 {
         access(self) var coverMedia: FantastecSwapDataProperties.Media?
         access(self) var followers: Int
         access(self) var following: {Address: Bool}
-        access(self) var metadata: {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]}
+        access(self) var metadata: {String: [{FantastecSwapDataProperties.MetadataElement}]}
 
         /* Profile Getters */
-        pub fun getAvatar(): String {
+        access(all) fun getAvatar(): String {
             return self.avatar
         }
-        pub fun getBio(): String {
+        access(all) fun getBio(): String {
             return self.bio
         }
-        pub fun getMetadata(): {String: [AnyStruct{FantastecSwapDataProperties.MetadataElement}]} {
+        access(all) fun getMetadata(): {String: [{FantastecSwapDataProperties.MetadataElement}]} {
             return self.metadata
         }
-        pub fun getCoverMedia(): FantastecSwapDataProperties.Media? {
+        access(all) fun getCoverMedia(): FantastecSwapDataProperties.Media? {
             return self.coverMedia
         }
-        pub fun getUsername(): String {
+        access(all) fun getUsername(): String {
             return self.username
         }
-        pub fun getName(): String {
+        access(all) fun getName(): String {
             return self.name
         }
 
@@ -296,35 +298,35 @@ pub contract SocialProfileV3 {
         access(contract) fun emitUpdateEvent(_ field: String) {
             emit ProfileUpdated(owner: self.owner!.address, field: field)
         }
-        pub fun setAvatar(avatar: String) {
+        access(Poster) fun setAvatar(avatar: String) {
             self.avatar = avatar
             self.emitUpdateEvent("avatar")
         }
-        pub fun setBio(bio: String) {
+        access(Poster) fun setBio(bio: String) {
             self.bio = bio
             self.emitUpdateEvent("bio")
         }
-        pub fun setUsername(username: String) {
+        access(Poster) fun setUsername(username: String) {
             self.username = username
             self.emitUpdateEvent("username")
         }
-        pub fun setCoverMedia(media: FantastecSwapDataProperties.Media?) {
+        access(Poster) fun setCoverMedia(media: FantastecSwapDataProperties.Media?) {
             self.coverMedia = media
             self.emitUpdateEvent("coverMedia")
         }
-        pub fun setName(name: String) {
+        access(Poster) fun setName(name: String) {
             self.name = name
             self.emitUpdateEvent("name")
         }
 
         /* Follow */
-        pub fun getFollowing(): {Address:Bool} {
+        access(all) fun getFollowing(): {Address:Bool} {
             return self.following
         }
-        pub fun getFollowersCount(): Int {
+        access(all) fun getFollowersCount(): Int {
             return self.followers
         }
-        pub fun follow(theirAddress: Address) {
+        access(Poster) fun follow(theirAddress: Address) {
             if self.following[theirAddress] == true  {
                 panic("You already follow this profile")
             }
@@ -333,17 +335,17 @@ pub contract SocialProfileV3 {
                 panic("You cannot follow your own profile")
             }
             
-            let socialProfileRef = getAccount(theirAddress).getCapability<&SocialProfileV3.SocialProfile{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
+            let socialProfileRef = getAccount(theirAddress).capabilities.get<&{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
             let theirAccount = socialProfileRef.incrementFollower()
             
             self.following[theirAddress] = true
             emit ProfileFollowed(owner: self.owner!.address, follower: theirAddress)
         }
-        pub fun unfollow(theirAddress: Address) {
+        access(Poster) fun unfollow(theirAddress: Address) {
             if self.following[theirAddress] == nil {
                 panic("You can not unfollow as you do not follow profile")
             } 
-            let socialProfileRef = getAccount(theirAddress).getCapability<&SocialProfileV3.SocialProfile{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
+            let socialProfileRef = getAccount(theirAddress).capabilities.get<&{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
             let theirAccount = socialProfileRef.decrementFollower()
 
             self.following.remove(key: theirAddress)
@@ -351,66 +353,66 @@ pub contract SocialProfileV3 {
         }
 
         /* Posts */
-        pub fun createPost(content: String, image: FantastecSwapDataProperties.Media?) {
-            let post <- create Post(
+        access(Poster) fun createPost(content: String, image: FantastecSwapDataProperties.Media?) {
+            let p <- create Post(
                 content: content,
                 author: self.owner!.address,
                 image: image
             )
-            emit PostCreated(owner: self.owner!.address, postId: post.id)
-            self.posts[post.id] <-! post
+            emit PostCreated(owner: self.owner!.address, postId: p.id)
+            self.posts[p.id] <-! p
         }
-        pub fun createNewsFeedPost(content: String, title: String, publishedDate: UFix64, image: FantastecSwapDataProperties.Media?, buttonUrl: String, buttonText: String) {
-            let post <- create Post(
+        access(Poster) fun createNewsFeedPost(content: String, title: String, publishedDate: UFix64, image: FantastecSwapDataProperties.Media?, buttonUrl: String, buttonText: String) {
+            let p <- create Post(
                 content: content,
                 author: self.owner!.address,
                 image: image
             )
             let metadataItemId: UInt64 = 1
             let metadata = FantastecSwapDataProperties.NewsFeed(metadataItemId, title, publishedDate, buttonUrl, buttonText)
-            post.addMetadata("NewsFeed", metadata)
-            emit NewsFeedPostCreated(owner: self.owner!.address, postId: post.id)
-            let oldPost <- self.posts[post.id] <-! post
+            p.addMetadata("NewsFeed", metadata)
+            emit NewsFeedPostCreated(owner: self.owner!.address, postId: p.id)
+            let oldPost <- self.posts[p.id] <-! p
             destroy oldPost
         }
-        pub fun borrowPost(_ id: UInt64): &Post? {
+        access(all) fun borrowPost(_ id: UInt64): &Post? {
             return (&self.posts[id] as &Post?)
         }
-        pub fun removePost(_ id: UInt64) {
-            let post <- self.posts.remove(key: id) ?? panic("Post with that id does not exist")
-            emit PostDestroyed(owner: self.owner!.address, postId: post.id)
-            destroy post
+        access(Poster) fun removePost(_ id: UInt64) {
+            let p <- self.posts.remove(key: id) ?? panic("Post with that id does not exist")
+            emit PostDestroyed(owner: self.owner!.address, postId: p.id)
+            destroy p
         }
-        pub fun likePost(theirAddress: Address, id: UInt64) {
+        access(Poster) fun likePost(theirAddress: Address, id: UInt64) {
             if self.likedPosts[id] == true {
                 panic("You already liked this post")
             }
-            let socialProfileRef = getAccount(theirAddress).getCapability<&SocialProfileV3.SocialProfile{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
+            let socialProfileRef = getAccount(theirAddress).capabilities.get<&{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
             let theirPost = socialProfileRef.borrowPost(id) ?? panic("Post does not exist with that id")
             theirPost.incrementLike()
             self.likedPosts[id] = true
             emit PostLiked(owner: theirAddress, postId: id, liker: self.owner!.address)
         }
-        pub fun unlikePost(theirAddress: Address, id: UInt64) {
+        access(Poster) fun unlikePost(theirAddress: Address, id: UInt64) {
             if self.likedPosts[id] == false ||  self.likedPosts[id] == nil {
                 panic("Post cannot be unliked as it was not previously liked")
             }
-            let socialProfileRef = getAccount(theirAddress).getCapability<&SocialProfileV3.SocialProfile{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
+            let socialProfileRef = getAccount(theirAddress).capabilities.get<&{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
             let theirPost = socialProfileRef.borrowPost(id) ?? panic("Post does not exist with that id")
             theirPost.decrementLike()
             self.likedPosts.remove(key:id)
             emit PostUnliked(owner: theirAddress, postId: id, liker: self.owner!.address)
         }
-        pub fun getLikedPosts(): [UInt64] {
+        access(all) fun getLikedPosts(): [UInt64] {
             return self.likedPosts.keys
         }
-        pub fun getPostIds(): [UInt64] {
+        access(all) fun getPostIds(): [UInt64] {
             return self.posts.keys
         } 
 
         /* Comments */
-        pub fun createComment(theirAddress: Address, postId: UInt64, content: String) {
-            let socialProfileRef = getAccount(theirAddress).getCapability<&SocialProfileV3.SocialProfile{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
+        access(Poster) fun createComment(theirAddress: Address, postId: UInt64, content: String) {
+            let socialProfileRef = getAccount(theirAddress).capabilities.get<&{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
             let theirPost = socialProfileRef.borrowPost(postId) ?? panic("Post does not exist with that id")
 
             let commentId = SocialProfileV3.nextCommentId
@@ -422,8 +424,8 @@ pub contract SocialProfileV3 {
             emit CommentCreated(owner: theirAddress, postId: theirPost.id, commenter: self.owner!.address, commentId: commentId)
         }
 
-        pub fun deleteComment(theirAddress: Address, postId: UInt64, commentId: UInt64){
-            let socialProfileRef = getAccount(theirAddress).getCapability<&SocialProfileV3.SocialProfile{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
+        access(Poster) fun deleteComment(theirAddress: Address, postId: UInt64, commentId: UInt64){
+            let socialProfileRef = getAccount(theirAddress).capabilities.get<&{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
             let theirPost = socialProfileRef.borrowPost(postId) ?? panic("Post does not exist with that id")
             let _comment: Comment? = theirPost.getComment(commentId)
             // check comment exists
@@ -439,11 +441,11 @@ pub contract SocialProfileV3 {
             emit CommentDestroyed(owner: theirAddress, postId: theirPost.id, commenter: self.owner!.address, commentId: commentId)
         }
 
-        pub fun likeComment(theirAddress: Address, postId: UInt64, commentId: UInt64) {
+        access(Poster) fun likeComment(theirAddress: Address, postId: UInt64, commentId: UInt64) {
             if self.likedComments[commentId] == true {
                 panic("You already liked this comment")
             }
-            let socialProfileRef = getAccount(theirAddress).getCapability<&SocialProfileV3.SocialProfile{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
+            let socialProfileRef = getAccount(theirAddress).capabilities.get<&{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
             let theirPost: &Post = socialProfileRef.borrowPost(postId) ?? panic("Post does not exist with that id")
             // Call the method to like the comment within the post
             theirPost.likeComment(commentId)
@@ -451,11 +453,11 @@ pub contract SocialProfileV3 {
             emit CommentLiked(owner: theirAddress, postId: postId, commentId: commentId, liker: self.owner!.address)
         }
 
-        pub fun unlikeComment(theirAddress: Address, postId: UInt64, commentId: UInt64) {
+        access(Poster) fun unlikeComment(theirAddress: Address, postId: UInt64, commentId: UInt64) {
              if self.likedComments[commentId] == nil {
                 panic("You havent liked this comment so you can not unlike")
             }
-            let socialProfileRef = getAccount(theirAddress).getCapability<&SocialProfileV3.SocialProfile{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
+            let socialProfileRef = getAccount(theirAddress).capabilities.get<&{SocialProfileV3.SocialProfilePublic}>(SocialProfileV3.SocialProfilePublicPath).borrow()!
             let theirPost = socialProfileRef.borrowPost(postId) ?? panic("Post does not exist with that id")
             theirPost.unlikeComment(commentId)
             self.likedComments.remove(key: commentId)
@@ -476,9 +478,9 @@ pub contract SocialProfileV3 {
         }
 
         /* Metadata */
-        pub fun addMetadata(
+        access(Poster) fun addMetadata(
         _ type: String,
-        _ metadata: AnyStruct{FantastecSwapDataProperties.MetadataElement},
+        _ metadata: {FantastecSwapDataProperties.MetadataElement},
         ) {
             if (self.metadata[type] == nil) {
                 self.metadata[type] = []
@@ -487,7 +489,7 @@ pub contract SocialProfileV3 {
             self.emitUpdateEvent("metadata add - ".concat(type))
         }
 
-        pub fun removeMetadata(
+        access(Poster) fun removeMetadata(
         _ type: String,
         _ id: UInt64?,
         ) {
@@ -497,17 +499,12 @@ pub contract SocialProfileV3 {
             self.metadata[type] = FantastecSwapDataProperties.removeFromMetadata(type, self.metadata[type]!, id)
             self.emitUpdateEvent("metadata remove - ".concat(type))
         }
-
-        destroy() {
-            let posts <- self.posts
-            destroy posts
-        }
         
-        pub fun emitInstalledEvent() {
+        access(all) fun emitInstalledEvent() {
             emit Installed(owner: self.owner!.address)
         }
 
-        pub fun emitDestroyedEvent(_ address: Address) {
+        access(all) fun emitDestroyedEvent(_ address: Address) {
             emit Destroyed(owner: address)
         }
 
@@ -526,7 +523,7 @@ pub contract SocialProfileV3 {
         }
     }
 
-    pub fun createSocialProfile(): @SocialProfile {
+    access(all) fun createSocialProfile(): @SocialProfile {
         return <-create SocialProfile()
     }
 
