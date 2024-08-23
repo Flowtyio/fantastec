@@ -114,6 +114,7 @@
 	"mainnet-account": {
 		"address": "0x4bbff461fa8f6192",
 		"key": {
+      "index": 3,
 			"type": "file",
 			"location": "mainnet-key.pkey"
 		}
